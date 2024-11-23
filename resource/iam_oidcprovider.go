@@ -56,17 +56,14 @@ func (i *iamOIDCProvider) FindResources(ctx context.Context, s *config.Settings)
 		r.Tags = map[string]string{}
 		found = append(found, r)
 
-		var tagLoopMarker *string
-		for {
-			tagResult, err := iamClient.ListOpenIDConnectProviderTags(ctx, &iam.ListOpenIDConnectProviderTagsInput{
-				OpenIDConnectProviderArn: provider.Arn,
-				Marker:                   tagLoopMarker,
-			})
+		p := iam.NewListOpenIDConnectProviderTagsPaginator(iamClient, &iam.ListOpenIDConnectProviderTagsInput{
+			OpenIDConnectProviderArn: provider.Arn,
+		})
+		for p.HasMorePages() {
+			tagResult, err := p.NextPage(ctx)
 			if err != nil {
 				return nil, fmt.Errorf("listing oidc provider tags: %s", err)
 			}
-
-			tagLoopMarker = tagResult.Marker
 
 			for _, tag := range tagResult.Tags {
 				if tag.Key == nil || tag.Value == nil {

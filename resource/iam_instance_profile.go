@@ -27,13 +27,12 @@ func (i *iamInstanceProfile) DeleteResource(ctx context.Context, s *config.Setti
 // FindResources implements ResourceProvider.
 func (i *iamInstanceProfile) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
 	iamClient := iam.NewFromConfig(s.AwsConfig)
-	var marker *string
 	var found []Resource
 
-	for {
-		result, err := iamClient.ListInstanceProfiles(ctx, &iam.ListInstanceProfilesInput{
-			Marker: marker,
-		})
+	p := iam.NewListInstanceProfilesPaginator(iamClient, &iam.ListInstanceProfilesInput{})
+	for p.HasMorePages() {
+		result, err := p.NextPage(ctx)
+
 		if err != nil {
 			return nil, fmt.Errorf("listing instance profiles: %s", err)
 		}
@@ -56,11 +55,6 @@ func (i *iamInstanceProfile) FindResources(ctx context.Context, s *config.Settin
 				r.Tags[*t.Key] = *t.Value
 			}
 		}
-
-		if !result.IsTruncated || result.Marker == nil {
-			break
-		}
-		marker = result.Marker
 	}
 
 	return found, nil

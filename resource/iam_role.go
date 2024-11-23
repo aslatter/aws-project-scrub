@@ -36,12 +36,11 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 	iamClient := iam.NewFromConfig(s.AwsConfig)
 
 	// detach role policies
-	var marker *string
-	for {
-		inlineRoles, err := iamClient.ListRolePolicies(ctx, &iam.ListRolePoliciesInput{
-			RoleName: &r.ID,
-			Marker:   marker,
-		})
+	rpp := iam.NewListRolePoliciesPaginator(iamClient, &iam.ListRolePoliciesInput{
+		RoleName: &r.ID,
+	})
+	for rpp.HasMorePages() {
+		inlineRoles, err := rpp.NextPage(ctx)
 		if err != nil {
 			return fmt.Errorf("listing role policies: %s", err)
 		}
@@ -55,20 +54,14 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 				return fmt.Errorf("deleting role policy %q: %s", p, err)
 			}
 		}
-
-		if inlineRoles.IsTruncated || inlineRoles.Marker == nil {
-			break
-		}
-		marker = inlineRoles.Marker
 	}
 
 	// delete role policies
-	marker = nil
-	for {
-		rolePolicies, err := iamClient.ListAttachedRolePolicies(ctx, &iam.ListAttachedRolePoliciesInput{
-			RoleName: &r.ID,
-			Marker:   marker,
-		})
+	arpp := iam.NewListAttachedRolePoliciesPaginator(iamClient, &iam.ListAttachedRolePoliciesInput{
+		RoleName: &r.ID,
+	})
+	for arpp.HasMorePages() {
+		rolePolicies, err := arpp.NextPage(ctx)
 		if err != nil {
 			return fmt.Errorf("listing attached role policies: %s", err)
 		}
@@ -85,11 +78,6 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 				return fmt.Errorf("detaching role policy %q: %s", *p.PolicyArn, err)
 			}
 		}
-
-		if rolePolicies.IsTruncated || rolePolicies.Marker == nil {
-			break
-		}
-		marker = rolePolicies.Marker
 	}
 
 	// delete role
@@ -105,11 +93,9 @@ func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Reso
 	var foundRoles []Resource
 	iamClient := iam.NewFromConfig(s.AwsConfig)
 
-	var marker *string
-	for {
-		result, err := iamClient.ListRoles(ctx, &iam.ListRolesInput{
-			Marker: marker,
-		})
+	lrp := iam.NewListRolesPaginator(iamClient, &iam.ListRolesInput{})
+	for lrp.HasMorePages() {
+		result, err := lrp.NextPage(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("listing roles: %s", err)
 		}
@@ -131,11 +117,6 @@ func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Reso
 				r.Tags[*t.Key] = *t.Value
 			}
 		}
-		// get next batch of roles
-		if !result.IsTruncated || result.Marker == nil {
-			break
-		}
-		marker = result.Marker
 	}
 
 	return foundRoles, nil
