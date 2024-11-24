@@ -17,8 +17,8 @@ func (i *iamInstanceProfile) IsGlobal() bool {
 
 // DeleteResource implements ResourceProvider.
 func (i *iamInstanceProfile) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
-	iamClient := iam.NewFromConfig(s.AwsConfig)
-	_, err := iamClient.DeleteInstanceProfile(ctx, &iam.DeleteInstanceProfileInput{
+	c := iam.NewFromConfig(s.AwsConfig)
+	_, err := c.DeleteInstanceProfile(ctx, &iam.DeleteInstanceProfileInput{
 		InstanceProfileName: &r.ID,
 	})
 	return err
@@ -26,10 +26,10 @@ func (i *iamInstanceProfile) DeleteResource(ctx context.Context, s *config.Setti
 
 // FindResources implements ResourceProvider.
 func (i *iamInstanceProfile) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
-	iamClient := iam.NewFromConfig(s.AwsConfig)
+	c := iam.NewFromConfig(s.AwsConfig)
 	var found []Resource
 
-	p := iam.NewListInstanceProfilesPaginator(iamClient, &iam.ListInstanceProfilesInput{})
+	p := iam.NewListInstanceProfilesPaginator(c, &iam.ListInstanceProfilesInput{})
 	for p.HasMorePages() {
 		result, err := p.NextPage(ctx)
 
@@ -48,12 +48,24 @@ func (i *iamInstanceProfile) FindResources(ctx context.Context, s *config.Settin
 			r.Tags = map[string]string{}
 			found = append(found, r)
 
-			for _, t := range p.Tags {
-				if t.Key == nil || t.Value == nil {
-					continue
+			iptp := iam.NewListInstanceProfileTagsPaginator(c, &iam.ListInstanceProfileTagsInput{
+				InstanceProfileName: &r.ID,
+			})
+
+			for iptp.HasMorePages() {
+				result, err := iptp.NextPage(ctx)
+				if err != nil {
+					return nil, fmt.Errorf("listing instance profile tags: %s", err)
 				}
-				r.Tags[*t.Key] = *t.Value
+
+				for _, t := range result.Tags {
+					if t.Key == nil || t.Value == nil {
+						continue
+					}
+					r.Tags[*t.Key] = *t.Value
+				}
 			}
+
 		}
 	}
 

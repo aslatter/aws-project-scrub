@@ -18,8 +18,8 @@ func (i *iamOIDCProvider) IsGlobal() bool {
 
 // DeleteResource implements ResourceProvider.
 func (i *iamOIDCProvider) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
-	iamClient := iam.NewFromConfig(s.AwsConfig)
-	_, err := iamClient.DeleteOpenIDConnectProvider(ctx, &iam.DeleteOpenIDConnectProviderInput{
+	c := iam.NewFromConfig(s.AwsConfig)
+	_, err := c.DeleteOpenIDConnectProvider(ctx, &iam.DeleteOpenIDConnectProviderInput{
 		OpenIDConnectProviderArn: &r.ID,
 	})
 	return err
@@ -37,10 +37,10 @@ func (i *iamOIDCProvider) Type() string {
 }
 
 func (i *iamOIDCProvider) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
-	iamClient := iam.NewFromConfig(s.AwsConfig)
+	c := iam.NewFromConfig(s.AwsConfig)
 	var found []Resource
 
-	listResult, err := iamClient.ListOpenIDConnectProviders(ctx, &iam.ListOpenIDConnectProvidersInput{})
+	listResult, err := c.ListOpenIDConnectProviders(ctx, &iam.ListOpenIDConnectProvidersInput{})
 	if err != nil {
 		return nil, fmt.Errorf("listing oidc providers: %s", err)
 	}
@@ -56,7 +56,7 @@ func (i *iamOIDCProvider) FindResources(ctx context.Context, s *config.Settings)
 		r.Tags = map[string]string{}
 		found = append(found, r)
 
-		p := iam.NewListOpenIDConnectProviderTagsPaginator(iamClient, &iam.ListOpenIDConnectProviderTagsInput{
+		p := iam.NewListOpenIDConnectProviderTagsPaginator(c, &iam.ListOpenIDConnectProviderTagsInput{
 			OpenIDConnectProviderArn: provider.Arn,
 		})
 		for p.HasMorePages() {

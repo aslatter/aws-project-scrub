@@ -33,10 +33,10 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 		- Attached managed policies (DetachRolePolicy )
 		- Instance profile (RemoveRoleFromInstanceProfile )
 	**/
-	iamClient := iam.NewFromConfig(s.AwsConfig)
+	c := iam.NewFromConfig(s.AwsConfig)
 
 	// detach role policies
-	rpp := iam.NewListRolePoliciesPaginator(iamClient, &iam.ListRolePoliciesInput{
+	rpp := iam.NewListRolePoliciesPaginator(c, &iam.ListRolePoliciesInput{
 		RoleName: &r.ID,
 	})
 	for rpp.HasMorePages() {
@@ -46,7 +46,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 		}
 
 		for _, p := range inlineRoles.PolicyNames {
-			_, err := iamClient.DeleteRolePolicy(ctx, &iam.DeleteRolePolicyInput{
+			_, err := c.DeleteRolePolicy(ctx, &iam.DeleteRolePolicyInput{
 				RoleName:   &r.ID,
 				PolicyName: &p,
 			})
@@ -57,7 +57,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 	}
 
 	// delete role policies
-	arpp := iam.NewListAttachedRolePoliciesPaginator(iamClient, &iam.ListAttachedRolePoliciesInput{
+	arpp := iam.NewListAttachedRolePoliciesPaginator(c, &iam.ListAttachedRolePoliciesInput{
 		RoleName: &r.ID,
 	})
 	for arpp.HasMorePages() {
@@ -70,7 +70,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 			if p.PolicyArn == nil {
 				continue
 			}
-			_, err := iamClient.DetachRolePolicy(ctx, &iam.DetachRolePolicyInput{
+			_, err := c.DetachRolePolicy(ctx, &iam.DetachRolePolicyInput{
 				RoleName:  &r.ID,
 				PolicyArn: p.PolicyArn,
 			})
@@ -81,7 +81,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 	}
 
 	// delete role
-	_, err := iamClient.DeleteRole(ctx, &iam.DeleteRoleInput{
+	_, err := c.DeleteRole(ctx, &iam.DeleteRoleInput{
 		RoleName: &r.ID,
 	})
 
@@ -91,9 +91,9 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 // FindResources implements Resource.
 func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
 	var foundRoles []Resource
-	iamClient := iam.NewFromConfig(s.AwsConfig)
+	c := iam.NewFromConfig(s.AwsConfig)
 
-	lrp := iam.NewListRolesPaginator(iamClient, &iam.ListRolesInput{})
+	lrp := iam.NewListRolesPaginator(c, &iam.ListRolesInput{})
 	for lrp.HasMorePages() {
 		result, err := lrp.NextPage(ctx)
 		if err != nil {
@@ -110,11 +110,20 @@ func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Reso
 			r.Tags = map[string]string{}
 			foundRoles = append(foundRoles, r)
 
-			for _, t := range role.Tags {
-				if t.Key == nil || t.Value == nil {
-					continue
+			rtp := iam.NewListRoleTagsPaginator(c, &iam.ListRoleTagsInput{
+				RoleName: &r.ID,
+			})
+			for rtp.HasMorePages() {
+				result, err := rtp.NextPage(ctx)
+				if err != nil {
+					return nil, fmt.Errorf("listing role tags: %s", err)
 				}
-				r.Tags[*t.Key] = *t.Value
+				for _, t := range result.Tags {
+					if t.Key == nil || t.Value == nil {
+						continue
+					}
+					r.Tags[*t.Key] = *t.Value
+				}
 			}
 		}
 	}
