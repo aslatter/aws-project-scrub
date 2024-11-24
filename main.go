@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 
@@ -78,7 +79,11 @@ func mainErr() error {
 				if c.dryRun {
 					fmt.Println(r.Type() + " " + res.ID)
 				} else {
-					return errors.New("unimplemented")
+					log.Printf("deleting %s: %s ...", r.Type(), res.ID)
+					err := r.DeleteResource(ctx, &s, res)
+					if err != nil {
+						log.Printf("error: %s %q: %s", r.Type(), res.ID, err)
+					}
 				}
 			}
 		}
