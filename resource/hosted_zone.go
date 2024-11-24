@@ -113,15 +113,18 @@ func (h *hostedZone) FindResources(ctx context.Context, s *config.Settings) ([]R
 			}
 
 			var r Resource
-			r.ID = *z.Id + "/" + *z.Name
+			id := *z.Id
+			// why do I need to do this?!
+			id = strings.ReplaceAll(id, "/hostedzone/", "")
+			r.ID = id + "/" + *z.Name
 			r.Tags = map[string]string{}
 
 			ts, err := c.ListTagsForResource(ctx, &route53.ListTagsForResourceInput{
-				ResourceId:   z.Id,
+				ResourceId:   &id,
 				ResourceType: types.TagResourceTypeHostedzone,
 			})
 			if err != nil {
-				return nil, fmt.Errorf("listing tags for zone %s: %s", *z.Id, err)
+				return nil, fmt.Errorf("listing tags for zone %s: %s", id, err)
 			}
 			for _, t := range ts.ResourceTagSet.Tags {
 				if t.Key == nil || t.Value == nil {

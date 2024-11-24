@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/heimdalr/dag"
@@ -44,9 +45,23 @@ func mainErr() error {
 	if ident.Account == nil {
 		return errors.New("account id unexpectedly nil")
 	}
+	if ident.Arn == nil {
+		return errors.New("caller ARN unexpectedly nil")
+	}
 	if c.account != *ident.Account {
 		return fmt.Errorf("expected account %q, got %q", c.account, *ident.Account)
 	}
+
+	parsedARN, err := arn.Parse(*ident.Arn)
+	if err != nil {
+		return fmt.Errorf("parsing identity ARN: %s", err)
+	}
+
+	var s config.Settings
+	s.AwsConfig = ac
+	s.Partition = parsedARN.Partition
+	s.Region = c.region
+	s.Account = *ident.Account
 
 	rs, err := getOrderedResources(c)
 	if err != nil {
@@ -54,9 +69,7 @@ func mainErr() error {
 	}
 
 	for _, r := range rs {
-		resources, err := r.FindResources(ctx, &config.Settings{
-			AwsConfig: ac,
-		})
+		resources, err := r.FindResources(ctx, &s)
 		if err != nil {
 			return fmt.Errorf("finding resources %s: %s", r.Type(), err)
 		}
