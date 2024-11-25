@@ -10,6 +10,11 @@ import (
 
 type iamInstanceProfile struct{}
 
+// RelatedResources implements ResourceProvider.
+func (i *iamInstanceProfile) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+	return nil, nil
+}
+
 // IsGlobal implements ResourceProvider.
 func (i *iamInstanceProfile) IsGlobal() bool {
 	return true
@@ -44,6 +49,7 @@ func (i *iamInstanceProfile) FindResources(ctx context.Context, s *config.Settin
 			}
 
 			var r Resource
+			r.Type = i.Type()
 			r.ID = *p.InstanceProfileName
 			r.Tags = map[string]string{}
 			found = append(found, r)

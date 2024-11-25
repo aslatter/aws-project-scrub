@@ -11,6 +11,11 @@ import (
 
 type iamOIDCProvider struct{}
 
+// RelatedResources implements ResourceProvider.
+func (i *iamOIDCProvider) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+	return nil, nil
+}
+
 // IsGlobal implements ResourceProvider.
 func (i *iamOIDCProvider) IsGlobal() bool {
 	return true
@@ -52,6 +57,7 @@ func (i *iamOIDCProvider) FindResources(ctx context.Context, s *config.Settings)
 		}
 
 		var r Resource
+		r.Type = i.Type()
 		r.ID = *provider.Arn
 		r.Tags = map[string]string{}
 		found = append(found, r)

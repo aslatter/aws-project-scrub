@@ -13,6 +13,11 @@ import (
 
 type hostedZone struct{}
 
+// RelatedResources implements ResourceProvider.
+func (h *hostedZone) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+	return nil, nil
+}
+
 // DeleteResource implements ResourceProvider.
 func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
 	splits := strings.Split(r.ID, "/")
@@ -113,6 +118,7 @@ func (h *hostedZone) FindResources(ctx context.Context, s *config.Settings) ([]R
 			}
 
 			var r Resource
+			r.Type = h.Type()
 			id := *z.Id
 			// why do I need to do this?!
 			id = strings.ReplaceAll(id, "/hostedzone/", "")

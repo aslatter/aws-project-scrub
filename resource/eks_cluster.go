@@ -15,6 +15,12 @@ import (
 
 type eksCluster struct{}
 
+// RelatedResources implements ResourceProvider.
+func (e *eksCluster) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+	// TODO - move fargate profiles and node-groups to external resources
+	return nil, nil
+}
+
 // DeleteResource implements ResourceProvider.
 func (e *eksCluster) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
 	c := eks.NewFromConfig(s.AwsConfig)
@@ -87,6 +93,7 @@ func (e *eksCluster) FindResources(ctx context.Context, s *config.Settings) ([]R
 
 		for _, k := range result.Clusters {
 			var r Resource
+			r.Type = e.Type()
 			r.ID = k
 			r.Tags = map[string]string{}
 			results = append(results, r)

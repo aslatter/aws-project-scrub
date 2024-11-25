@@ -13,6 +13,7 @@ type ResourceProvider interface {
 	IsGlobal() bool
 	Dependencies() []string
 	FindResources(ctx context.Context, s *config.Settings) ([]Resource, error)
+	RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error)
 	DeleteResource(ctx context.Context, s *config.Settings, r Resource) error
 }
 
@@ -26,11 +27,13 @@ func GetAllResourceProviders() []ResourceProvider {
 	return slices.Collect(maps.Values(registry))
 }
 
-func GetResourceProvider(typ string) ResourceProvider {
-	return registry[typ]
+func GetResourceProvider(typ string) (ResourceProvider, bool) {
+	rp, ok := registry[typ]
+	return rp, ok
 }
 
 type Resource struct {
+	Type string
 	ID   string
 	Tags map[string]string
 }

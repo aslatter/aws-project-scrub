@@ -10,6 +10,12 @@ import (
 
 type iamRole struct{}
 
+// RelatedResources implements ResourceProvider.
+func (i *iamRole) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+	// TODO - move inline policies and attached policies to external resources
+	return nil, nil
+}
+
 // IsGlobal implements ResourceProvider.
 func (i *iamRole) IsGlobal() bool {
 	return true
@@ -106,6 +112,7 @@ func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Reso
 			}
 
 			var r Resource
+			r.Type = i.Type()
 			r.ID = *role.RoleName
 			r.Tags = map[string]string{}
 			foundRoles = append(foundRoles, r)
