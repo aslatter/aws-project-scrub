@@ -43,11 +43,6 @@ func (i *iamRole) IsGlobal() bool {
 	return true
 }
 
-// Dependencies implements Resource.
-func (i *iamRole) Dependencies() []string {
-	return []string{}
-}
-
 // Type implements Resource.
 func (i *iamRole) Type() string {
 	return "AWS::IAM::Role"

@@ -42,11 +42,6 @@ func (e *eksFargateProfile) DeleteResource(ctx context.Context, s *config.Settin
 	return nil
 }
 
-// Dependencies implements ResourceProvider.
-func (e *eksFargateProfile) Dependencies() []string {
-	return nil
-}
-
 // FindResources implements ResourceProvider.
 func (e *eksFargateProfile) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
 	return nil, nil

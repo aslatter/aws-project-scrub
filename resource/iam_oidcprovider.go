@@ -30,12 +30,6 @@ func (i *iamOIDCProvider) DeleteResource(ctx context.Context, s *config.Settings
 	return err
 }
 
-// Dependencies implements Resource.
-func (i *iamOIDCProvider) Dependencies() []string {
-	// "AWS::IAM::Role"?
-	return []string{}
-}
-
 // Type implements Resource.
 func (i *iamOIDCProvider) Type() string {
 	return "AWS::IAM::OIDCProvider"

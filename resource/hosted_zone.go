@@ -92,11 +92,6 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 	return err
 }
 
-// Dependencies implements ResourceProvider.
-func (h *hostedZone) Dependencies() []string {
-	return []string{}
-}
-
 // FindResources implements ResourceProvider.
 func (h *hostedZone) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
 	c := route53.NewFromConfig(s.AwsConfig)

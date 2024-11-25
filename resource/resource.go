@@ -12,7 +12,6 @@ import (
 type ResourceProvider interface {
 	Type() string
 	IsGlobal() bool
-	Dependencies() []string
 	FindResources(ctx context.Context, s *config.Settings) ([]Resource, error)
 	RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error)
 	DeleteResource(ctx context.Context, s *config.Settings, r Resource) error

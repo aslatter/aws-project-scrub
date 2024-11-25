@@ -101,7 +101,7 @@ func getOrderedResources(ctx context.Context, c *cfg, s *config.Settings) ([]res
 	}
 
 	// build a dag of implied-dependencies (based on related-resources
-	// returned) and any declared explicit dependencies
+	// returned)
 
 	d := dag.NewDAG()
 
@@ -120,17 +120,6 @@ func getOrderedResources(ctx context.Context, c *cfg, s *config.Settings) ([]res
 			err := d.AddEdge(toType, fromType)
 			if err != nil {
 				return nil, fmt.Errorf("adding dependency from %s to %s: %s", fromType, toType, err)
-			}
-		}
-	}
-
-	// explicit dependencies
-	// TODO - get rid of explicit dependencies?
-	for _, r := range rs {
-		for _, dep := range r.Dependencies() {
-			err := d.AddEdge(dep, r.Type())
-			if err != nil {
-				return nil, fmt.Errorf("adding dependency from %s to %s: %s", r.Type(), dep, err)
 			}
 		}
 	}

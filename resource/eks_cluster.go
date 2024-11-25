@@ -62,11 +62,6 @@ func (e *eksCluster) DeleteResource(ctx context.Context, s *config.Settings, r R
 	return err
 }
 
-// Dependencies implements ResourceProvider.
-func (e *eksCluster) Dependencies() []string {
-	return []string{}
-}
-
 // FindResources implements ResourceProvider.
 func (e *eksCluster) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
 	var results []Resource

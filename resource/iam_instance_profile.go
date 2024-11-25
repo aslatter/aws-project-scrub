@@ -33,11 +33,6 @@ func (i *iamInstanceProfile) FindResources(ctx context.Context, s *config.Settin
 	return nil, nil
 }
 
-// Dependencies implements Resource.
-func (i *iamInstanceProfile) Dependencies() []string {
-	return []string{}
-}
-
 // Type implements Resource.
 func (i *iamInstanceProfile) Type() string {
 	return ResourceTypeIAMInstanceProfile
