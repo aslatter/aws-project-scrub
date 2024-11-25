@@ -10,6 +10,7 @@ import (
 	"maps"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
@@ -74,12 +75,12 @@ func mainErr() error {
 		r := b.provider
 		for _, res := range b.resources {
 			if c.dryRun {
-				fmt.Println(r.Type() + " " + res.ID)
+				fmt.Println(res)
 			} else {
-				log.Printf("deleting %s: %s ...", r.Type(), res.ID)
+				log.Printf("deleting %s ...", res)
 				err := r.DeleteResource(ctx, &s, res)
 				if err != nil {
-					log.Printf("error: %s %q: %s", r.Type(), res.ID, err)
+					log.Printf("error: %q: %s", res, err)
 				}
 			}
 
@@ -272,16 +273,18 @@ func (rb *resourceBag) addResource(ctx context.Context, s *config.Settings, r re
 		rb.foundResources = map[string]map[string]resource.Resource{}
 	}
 
+	resourceKey := strings.Join(r.ID, "/")
+
 	foundByType, ok := rb.foundResources[r.Type]
 	if !ok {
 		foundByType = map[string]resource.Resource{}
 		rb.foundResources[r.Type] = foundByType
 	}
-	_, exist := foundByType[r.ID]
+	_, exist := foundByType[resourceKey]
 	if exist {
 		return nil, nil
 	}
-	foundByType[r.ID] = r
+	foundByType[resourceKey] = r
 
 	rp, ok := resource.GetResourceProvider(r.Type)
 	if !ok {

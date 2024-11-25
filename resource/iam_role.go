@@ -12,8 +12,30 @@ type iamRole struct{}
 
 // RelatedResources implements ResourceProvider.
 func (i *iamRole) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
-	// TODO - move inline policies and attached policies to external resources
-	return nil, nil
+	c := iam.NewFromConfig(s.AwsConfig)
+
+	// instance profiles
+	p := iam.NewListInstanceProfilesForRolePaginator(c, &iam.ListInstanceProfilesForRoleInput{
+		RoleName: &r.ID[0],
+	})
+
+	var result []Resource
+
+	for p.HasMorePages() {
+		page, err := p.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("list instance profiles for role %q: %s", r.ID, err)
+		}
+
+		for _, profile := range page.InstanceProfiles {
+			var r Resource
+			r.Type = ResourceTypeIAMInstanceProfile
+			r.ID = []string{*profile.InstanceProfileName}
+			result = append(result, r)
+		}
+	}
+
+	return result, nil
 }
 
 // IsGlobal implements ResourceProvider.
@@ -23,7 +45,7 @@ func (i *iamRole) IsGlobal() bool {
 
 // Dependencies implements Resource.
 func (i *iamRole) Dependencies() []string {
-	return []string{"AWS::IAM::InstanceProfile"}
+	return []string{}
 }
 
 // Type implements Resource.
@@ -43,7 +65,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 
 	// detach role policies
 	rpp := iam.NewListRolePoliciesPaginator(c, &iam.ListRolePoliciesInput{
-		RoleName: &r.ID,
+		RoleName: &r.ID[0],
 	})
 	for rpp.HasMorePages() {
 		inlineRoles, err := rpp.NextPage(ctx)
@@ -53,7 +75,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 
 		for _, p := range inlineRoles.PolicyNames {
 			_, err := c.DeleteRolePolicy(ctx, &iam.DeleteRolePolicyInput{
-				RoleName:   &r.ID,
+				RoleName:   &r.ID[0],
 				PolicyName: &p,
 			})
 			if err != nil {
@@ -64,7 +86,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 
 	// delete role policies
 	arpp := iam.NewListAttachedRolePoliciesPaginator(c, &iam.ListAttachedRolePoliciesInput{
-		RoleName: &r.ID,
+		RoleName: &r.ID[0],
 	})
 	for arpp.HasMorePages() {
 		rolePolicies, err := arpp.NextPage(ctx)
@@ -77,7 +99,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 				continue
 			}
 			_, err := c.DetachRolePolicy(ctx, &iam.DetachRolePolicyInput{
-				RoleName:  &r.ID,
+				RoleName:  &r.ID[0],
 				PolicyArn: p.PolicyArn,
 			})
 			if err != nil {
@@ -88,7 +110,7 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 
 	// delete role
 	_, err := c.DeleteRole(ctx, &iam.DeleteRoleInput{
-		RoleName: &r.ID,
+		RoleName: &r.ID[0],
 	})
 
 	return err
@@ -113,12 +135,12 @@ func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Reso
 
 			var r Resource
 			r.Type = i.Type()
-			r.ID = *role.RoleName
+			r.ID = []string{*role.RoleName}
 			r.Tags = map[string]string{}
 			foundRoles = append(foundRoles, r)
 
 			rtp := iam.NewListRoleTagsPaginator(c, &iam.ListRoleTagsInput{
-				RoleName: &r.ID,
+				RoleName: role.RoleName,
 			})
 			for rtp.HasMorePages() {
 				result, err := rtp.NextPage(ctx)

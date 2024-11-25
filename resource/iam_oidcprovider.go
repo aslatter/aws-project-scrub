@@ -25,7 +25,7 @@ func (i *iamOIDCProvider) IsGlobal() bool {
 func (i *iamOIDCProvider) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
 	c := iam.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteOpenIDConnectProvider(ctx, &iam.DeleteOpenIDConnectProviderInput{
-		OpenIDConnectProviderArn: &r.ID,
+		OpenIDConnectProviderArn: &r.ID[0],
 	})
 	return err
 }
@@ -58,7 +58,7 @@ func (i *iamOIDCProvider) FindResources(ctx context.Context, s *config.Settings)
 
 		var r Resource
 		r.Type = i.Type()
-		r.ID = *provider.Arn
+		r.ID = []string{*provider.Arn}
 		r.Tags = map[string]string{}
 		found = append(found, r)
 

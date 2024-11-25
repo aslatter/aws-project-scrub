@@ -20,12 +20,9 @@ func (h *hostedZone) RelatedResources(ctx context.Context, s *config.Settings, r
 
 // DeleteResource implements ResourceProvider.
 func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
-	splits := strings.Split(r.ID, "/")
-	if len(splits) != 2 {
-		return fmt.Errorf("invalid hosted-zone resource-id")
-	}
-	zid := splits[0]
-	zname := splits[1]
+
+	zid := r.ID[0]
+	zname := r.ID[1]
 
 	c := route53.NewFromConfig(s.AwsConfig)
 
@@ -122,7 +119,7 @@ func (h *hostedZone) FindResources(ctx context.Context, s *config.Settings) ([]R
 			id := *z.Id
 			// why do I need to do this?!
 			id = strings.ReplaceAll(id, "/hostedzone/", "")
-			r.ID = id + "/" + *z.Name
+			r.ID = []string{id, *z.Name}
 			r.Tags = map[string]string{}
 
 			ts, err := c.ListTagsForResource(ctx, &route53.ListTagsForResourceInput{

@@ -4,6 +4,7 @@ import (
 	"context"
 	"maps"
 	"slices"
+	"strings"
 
 	"aws-project-scrub/config"
 )
@@ -34,6 +35,10 @@ func GetResourceProvider(typ string) (ResourceProvider, bool) {
 
 type Resource struct {
 	Type string
-	ID   string
+	ID   []string
 	Tags map[string]string
+}
+
+func (r *Resource) String() string {
+	return r.Type + "/" + strings.Join(r.ID, "/")
 }
