@@ -229,8 +229,8 @@ type resourceBag struct {
 type dependencies map[string]map[string]struct{}
 
 func (d *dependencies) add(from string, to string) {
-	if d == nil {
-		d = &dependencies{}
+	if *d == nil {
+		(*d) = map[string]map[string]struct{}{}
 	}
 	v, ok := (*d)[from]
 	if !ok {
@@ -244,8 +244,8 @@ func (d *dependencies) copy(other dependencies) {
 	if len(other) == 0 {
 		return
 	}
-	if d == nil {
-		d = &dependencies{}
+	if *d == nil {
+		(*d) = map[string]map[string]struct{}{}
 	}
 	for k, ov := range other {
 		v, ok := (*d)[k]

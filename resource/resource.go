@@ -38,6 +38,6 @@ type Resource struct {
 	Tags map[string]string
 }
 
-func (r *Resource) String() string {
+func (r Resource) String() string {
 	return r.Type + "/" + strings.Join(r.ID, "/")
 }

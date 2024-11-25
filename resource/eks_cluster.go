@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 )
@@ -40,7 +41,7 @@ func (e *eksCluster) RelatedResources(ctx context.Context, s *config.Settings, r
 	for ngp.HasMorePages() {
 		page, err := ngp.NextPage(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("listing EKS node groups:", err)
+			return nil, fmt.Errorf("listing EKS node groups: %s", err)
 		}
 		for _, ng := range page.Nodegroups {
 			var r Resource
@@ -59,7 +60,19 @@ func (e *eksCluster) DeleteResource(ctx context.Context, s *config.Settings, r R
 	_, err := c.DeleteCluster(ctx, &eks.DeleteClusterInput{
 		Name: &r.ID[0],
 	})
-	return err
+	if err != nil {
+		return err
+	}
+
+	w := eks.NewClusterDeletedWaiter(c)
+	err = w.Wait(ctx, &eks.DescribeClusterInput{
+		Name: &r.ID[0],
+	}, 5*time.Minute)
+	if err != nil {
+		return fmt.Errorf("waiting for deletion: %s", err)
+	}
+
+	return nil
 }
 
 // FindResources implements ResourceProvider.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"aws-project-scrub/config"
 
@@ -30,6 +31,8 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 	rp := route53.NewListResourceRecordSetsPaginator(c, &route53.ListResourceRecordSetsInput{
 		HostedZoneId: &zid,
 	})
+
+	w := route53.NewResourceRecordSetsChangedWaiter(c)
 
 	var changes []types.Change
 	for rp.HasMorePages() {
@@ -59,7 +62,7 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 			})
 
 			if len(changes) == 1000 {
-				_, err := c.ChangeResourceRecordSets(ctx, &route53.ChangeResourceRecordSetsInput{
+				changeResult, err := c.ChangeResourceRecordSets(ctx, &route53.ChangeResourceRecordSetsInput{
 					HostedZoneId: &zid,
 					ChangeBatch: &types.ChangeBatch{
 						Changes: changes,
@@ -70,12 +73,17 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 				}
 				changes = changes[:0]
 
-				// TODO - handle waiting for change to be accepted, and perhaps throttling?
+				err = w.Wait(ctx, &route53.GetChangeInput{
+					Id: changeResult.ChangeInfo.Id,
+				}, 5*time.Minute)
+				if err != nil {
+					return fmt.Errorf("waiting for changeset: %s", err)
+				}
 			}
 		}
 	}
 	if len(changes) > 0 {
-		_, err := c.ChangeResourceRecordSets(ctx, &route53.ChangeResourceRecordSetsInput{
+		changeResult, err := c.ChangeResourceRecordSets(ctx, &route53.ChangeResourceRecordSetsInput{
 			HostedZoneId: &zid,
 			ChangeBatch: &types.ChangeBatch{
 				Changes: changes,
@@ -83,6 +91,13 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 		})
 		if err != nil {
 			return fmt.Errorf("updating record-sets: %s", err)
+		}
+
+		err = w.Wait(ctx, &route53.GetChangeInput{
+			Id: changeResult.ChangeInfo.Id,
+		}, 5*time.Minute)
+		if err != nil {
+			return fmt.Errorf("waiting for changeset: %s", err)
 		}
 	}
 

@@ -33,7 +33,7 @@ func (e *eksNodegroup) DeleteResource(ctx context.Context, s *config.Settings, r
 	err = w.Wait(ctx, &eks.DescribeNodegroupInput{
 		ClusterName:   &cluster,
 		NodegroupName: &nodegroup,
-	}, 5*time.Minute)
+	}, 15*time.Minute)
 
 	if err != nil {
 		return fmt.Errorf("waiting for deletion: %s", err)
