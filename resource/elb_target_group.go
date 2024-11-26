@@ -9,6 +9,10 @@ import (
 
 type elbTargetGroup struct{}
 
+func (e *elbTargetGroup) Dependencies() []string {
+	return []string{ResourceTypeLoadBalancer}
+}
+
 // DeleteResource implements ResourceProvider.
 func (e *elbTargetGroup) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
 	c := elb.NewFromConfig(s.AwsConfig)
