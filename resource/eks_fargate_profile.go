@@ -42,21 +42,6 @@ func (e *eksFargateProfile) DeleteResource(ctx context.Context, s *config.Settin
 	return nil
 }
 
-// FindResources implements ResourceProvider.
-func (e *eksFargateProfile) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
-	return nil, nil
-}
-
-// IsGlobal implements ResourceProvider.
-func (e *eksFargateProfile) IsGlobal() bool {
-	return false
-}
-
-// DependentResources implements ResourceProvider.
-func (e *eksFargateProfile) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
-	return nil, nil
-}
-
 // Type implements ResourceProvider.
 func (e *eksFargateProfile) Type() string {
 	return ResourceTypeEKSFargateProfile

@@ -172,11 +172,6 @@ func (e *ec2Vpc) FindResources(ctx context.Context, s *config.Settings) ([]Resou
 	return results, nil
 }
 
-// IsGlobal implements ResourceProvider.
-func (e *ec2Vpc) IsGlobal() bool {
-	return false
-}
-
 // Type implements ResourceProvider.
 func (e *ec2Vpc) Type() string {
 	return ResourceTypeEC2VPC

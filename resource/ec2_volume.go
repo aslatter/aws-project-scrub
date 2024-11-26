@@ -21,11 +21,6 @@ func (e *ec2Volume) DeleteResource(ctx context.Context, s *config.Settings, r Re
 	return err
 }
 
-// DependentResources implements ResourceProvider.
-func (e *ec2Volume) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
-	return nil, nil
-}
-
 func (e *ec2Volume) Dependencies() []string {
 	// wait until we're done using the volumes
 	return []string{ResourceTypeEC2VPC}
@@ -67,11 +62,6 @@ func (e *ec2Volume) FindResources(ctx context.Context, s *config.Settings) ([]Re
 	}
 
 	return result, nil
-}
-
-// IsGlobal implements ResourceProvider.
-func (e *ec2Volume) IsGlobal() bool {
-	return false
 }
 
 // Type implements ResourceProvider.

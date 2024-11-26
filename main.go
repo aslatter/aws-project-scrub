@@ -199,10 +199,14 @@ func collectResources(ctx context.Context, c *cfg, s *config.Settings) (*collect
 	// resource-roots
 
 	for _, rp := range resource.GetAllResourceProviders() {
-		if rp.IsGlobal() && !isGlobalRegion(s.Region) {
+		rootProvider, ok := rp.(resource.HasRootResources)
+		if !ok {
 			continue
 		}
-		rs, err := rp.FindResources(ctx, s)
+		if rg, ok := rp.(resource.IsGlobal); ok && rg.IsGlobal() && !isGlobalRegion(s.Region) {
+			continue
+		}
+		rs, err := rootProvider.FindResources(ctx, s)
 		if err != nil {
 			return nil, err
 		}
@@ -293,7 +297,13 @@ func (rb *resourceBag) addResource(ctx context.Context, s *config.Settings, r re
 	if !ok {
 		return nil, fmt.Errorf("unknown resource type %q", r.Type)
 	}
-	related, err := rp.DependentResources(ctx, s, r)
+
+	dependencyProvider, ok := rp.(resource.HasDependentResources)
+	if !ok {
+		return nil, nil
+	}
+
+	related, err := dependencyProvider.DependentResources(ctx, s, r)
 	if err != nil {
 		return nil, fmt.Errorf("finding resources related to %s", r)
 	}

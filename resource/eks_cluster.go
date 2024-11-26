@@ -112,11 +112,6 @@ func (e *eksCluster) FindResources(ctx context.Context, s *config.Settings) ([]R
 	return results, nil
 }
 
-// IsGlobal implements ResourceProvider.
-func (e *eksCluster) IsGlobal() bool {
-	return false
-}
-
 // Type implements ResourceProvider.
 func (e *eksCluster) Type() string {
 	return ResourceTypeEKSCluster

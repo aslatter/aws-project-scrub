@@ -21,11 +21,6 @@ func (e *ec2EIP) DeleteResource(ctx context.Context, s *config.Settings, r Resou
 	return err
 }
 
-// DependentResources implements ResourceProvider.
-func (e *ec2EIP) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
-	return nil, nil
-}
-
 // Dependencies returns resource-providers which must run before this one.
 func (e *ec2EIP) Dependencies() []string {
 	// wait until we're done removing anything that could be using our
@@ -67,11 +62,6 @@ func (e *ec2EIP) FindResources(ctx context.Context, s *config.Settings) ([]Resou
 	}
 
 	return result, nil
-}
-
-// IsGlobal implements ResourceProvider.
-func (e *ec2EIP) IsGlobal() bool {
-	return false
 }
 
 // Type implements ResourceProvider.

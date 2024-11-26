@@ -32,21 +32,6 @@ func (e *ec2Instance) DeleteResource(ctx context.Context, s *config.Settings, r 
 	return nil
 }
 
-// DependentResources implements ResourceProvider.
-func (e *ec2Instance) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
-	return nil, nil
-}
-
-// FindResources implements ResourceProvider.
-func (e *ec2Instance) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
-	return nil, nil
-}
-
-// IsGlobal implements ResourceProvider.
-func (e *ec2Instance) IsGlobal() bool {
-	return false
-}
-
 // Type implements ResourceProvider.
 func (e *ec2Instance) Type() string {
 	return ResourceTypeEC2Instance

@@ -42,21 +42,6 @@ func (e *eksNodegroup) DeleteResource(ctx context.Context, s *config.Settings, r
 	return nil
 }
 
-// FindResources implements ResourceProvider.
-func (e *eksNodegroup) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
-	return nil, nil
-}
-
-// IsGlobal implements ResourceProvider.
-func (e *eksNodegroup) IsGlobal() bool {
-	return false
-}
-
-// DependentResources implements ResourceProvider.
-func (e *eksNodegroup) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
-	return nil, nil
-}
-
 // Type implements ResourceProvider.
 func (e *eksNodegroup) Type() string {
 	return ResourceTypeEKSNodegroup

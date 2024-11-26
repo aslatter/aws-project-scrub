@@ -11,11 +11,6 @@ import (
 
 type iamOIDCProvider struct{}
 
-// DependentResources implements ResourceProvider.
-func (i *iamOIDCProvider) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
-	return nil, nil
-}
-
 // IsGlobal implements ResourceProvider.
 func (i *iamOIDCProvider) IsGlobal() bool {
 	return true

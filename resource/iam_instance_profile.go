@@ -12,11 +12,6 @@ import (
 
 type iamInstanceProfile struct{}
 
-// DependentResources implements ResourceProvider.
-func (i *iamInstanceProfile) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
-	return nil, nil
-}
-
 // IsGlobal implements ResourceProvider.
 func (i *iamInstanceProfile) IsGlobal() bool {
 	return true
@@ -63,11 +58,6 @@ func (i *iamInstanceProfile) DeleteResource(ctx context.Context, s *config.Setti
 		InstanceProfileName: &r.ID[0],
 	})
 	return err
-}
-
-// FindResources implements ResourceProvider.
-func (i *iamInstanceProfile) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
-	return nil, nil
 }
 
 // Type implements Resource.
