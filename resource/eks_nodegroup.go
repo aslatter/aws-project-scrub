@@ -48,5 +48,7 @@ func (e *eksNodegroup) Type() string {
 }
 
 func init() {
-	register(&eksNodegroup{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &eksNodegroup{}
+	})
 }

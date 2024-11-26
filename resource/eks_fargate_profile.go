@@ -47,5 +47,7 @@ func (e *eksFargateProfile) Type() string {
 }
 
 func init() {
-	register(&eksFargateProfile{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &eksFargateProfile{}
+	})
 }

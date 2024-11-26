@@ -158,5 +158,7 @@ func (h *hostedZone) Type() string {
 }
 
 func init() {
-	register(&hostedZone{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &hostedZone{}
+	})
 }

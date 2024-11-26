@@ -37,5 +37,7 @@ func (e *ec2Instance) Type() string {
 }
 
 func init() {
-	register(&ec2Instance{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &ec2Instance{}
+	})
 }

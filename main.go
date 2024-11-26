@@ -107,7 +107,7 @@ func getOrderedResources(ctx context.Context, c *cfg, s *config.Settings) ([]res
 
 	d := dag.NewDAG()
 
-	rs := resource.GetAllResourceProviders()
+	rs := resource.GetAllResourceProviders(s)
 	for _, r := range rs {
 		err := d.AddVertexByID(r.Type(), r)
 		if err != nil {
@@ -198,7 +198,10 @@ func collectResources(ctx context.Context, c *cfg, s *config.Settings) (*collect
 	// most resource-providers don't actually provide resources - we find them from tagged
 	// resource-roots
 
-	for _, rp := range resource.GetAllResourceProviders() {
+	b.providers = map[string]resource.ResourceProvider{}
+	for _, rp := range resource.GetAllResourceProviders(s) {
+		b.providers[rp.Type()] = rp
+
 		rootProvider, ok := rp.(resource.HasRootResources)
 		if !ok {
 			continue
@@ -241,6 +244,7 @@ type collectedResources struct {
 }
 
 type resourceBag struct {
+	providers      map[string]resource.ResourceProvider
 	foundResources map[string]map[string]resource.Resource
 }
 
@@ -293,7 +297,7 @@ func (rb *resourceBag) addResource(ctx context.Context, s *config.Settings, r re
 	}
 	foundByType[resourceKey] = r
 
-	rp, ok := resource.GetResourceProvider(r.Type)
+	rp, ok := rb.providers[r.Type]
 	if !ok {
 		return nil, fmt.Errorf("unknown resource type %q", r.Type)
 	}

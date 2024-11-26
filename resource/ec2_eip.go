@@ -70,5 +70,7 @@ func (e *ec2EIP) Type() string {
 }
 
 func init() {
-	register(&ec2EIP{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &ec2EIP{}
+	})
 }

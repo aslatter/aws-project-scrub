@@ -117,5 +117,7 @@ func (e *eksCluster) Type() string {
 }
 
 func init() {
-	register(&eksCluster{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &eksCluster{}
+	})
 }

@@ -178,5 +178,7 @@ func (e *ec2Vpc) Type() string {
 }
 
 func init() {
-	register(&ec2Vpc{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &ec2Vpc{}
+	})
 }

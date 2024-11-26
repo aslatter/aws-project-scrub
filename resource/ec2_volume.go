@@ -70,5 +70,7 @@ func (e *ec2Volume) Type() string {
 }
 
 func init() {
-	register(&ec2Volume{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &ec2Volume{}
+	})
 }

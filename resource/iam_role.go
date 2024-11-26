@@ -156,5 +156,7 @@ func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Reso
 }
 
 func init() {
-	register(&iamRole{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &iamRole{}
+	})
 }

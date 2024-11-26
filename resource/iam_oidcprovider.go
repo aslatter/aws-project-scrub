@@ -73,5 +73,7 @@ func (i *iamOIDCProvider) FindResources(ctx context.Context, s *config.Settings)
 }
 
 func init() {
-	register(&iamOIDCProvider{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &iamOIDCProvider{}
+	})
 }

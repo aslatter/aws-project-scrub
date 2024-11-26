@@ -37,5 +37,7 @@ func (e *elbLoadBalancer) Type() string {
 }
 
 func init() {
-	register(&elbLoadBalancer{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &elbLoadBalancer{}
+	})
 }

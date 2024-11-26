@@ -66,5 +66,7 @@ func (i *iamInstanceProfile) Type() string {
 }
 
 func init() {
-	register(&iamInstanceProfile{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &iamInstanceProfile{}
+	})
 }

@@ -2,8 +2,6 @@ package resource
 
 import (
 	"context"
-	"maps"
-	"slices"
 	"strings"
 	"time"
 
@@ -36,19 +34,23 @@ type IsGlobal interface {
 	IsGlobal() bool
 }
 
-var registry map[string]ResourceProvider = map[string]ResourceProvider{}
-
-func register(r ResourceProvider) {
-	registry[r.Type()] = r
+type providerInfo struct {
+	typ    string
+	create func(*config.Settings) ResourceProvider
 }
 
-func GetAllResourceProviders() []ResourceProvider {
-	return slices.Collect(maps.Values(registry))
+var registry [](func(*config.Settings) ResourceProvider) = [](func(*config.Settings) ResourceProvider){}
+
+func register(fn func(*config.Settings) ResourceProvider) {
+	registry = append(registry, fn)
 }
 
-func GetResourceProvider(typ string) (ResourceProvider, bool) {
-	rp, ok := registry[typ]
-	return rp, ok
+func GetAllResourceProviders(s *config.Settings) []ResourceProvider {
+	var result []ResourceProvider
+	for _, fn := range registry {
+		result = append(result, fn(s))
+	}
+	return result
 }
 
 type Resource struct {

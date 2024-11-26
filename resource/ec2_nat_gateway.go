@@ -38,5 +38,7 @@ func (n *natGateway) Type() string {
 }
 
 func init() {
-	register(&natGateway{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &natGateway{}
+	})
 }

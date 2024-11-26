@@ -24,5 +24,7 @@ func (e *elbTargetGroup) Type() string {
 }
 
 func init() {
-	register(&elbTargetGroup{})
+	register(func(s *config.Settings) ResourceProvider {
+		return &elbTargetGroup{}
+	})
 }
