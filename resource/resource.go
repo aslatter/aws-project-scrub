@@ -34,11 +34,6 @@ type IsGlobal interface {
 	IsGlobal() bool
 }
 
-type providerInfo struct {
-	typ    string
-	create func(*config.Settings) ResourceProvider
-}
-
 var registry [](func(*config.Settings) ResourceProvider) = [](func(*config.Settings) ResourceProvider){}
 
 func register(fn func(*config.Settings) ResourceProvider) {
