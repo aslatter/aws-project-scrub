@@ -144,29 +144,26 @@ func getOrderedResources(ctx context.Context, c *cfg, s *config.Settings) ([]res
 	}
 
 	var results []resourceBundle
-
-	d.BFSWalk(visitorFunc(func(v dag.Vertexer) {
-		rid, r := v.Vertex()
-		rr, ok := r.(resource.ResourceProvider)
+	rids, err := dagDependencyOrder(d)
+	if err != nil {
+		return nil, err
+	}
+	for _, rid := range rids {
+		v, err := d.GetVertex(rid)
+		if err != nil {
+			return nil, fmt.Errorf("looking up graph vertex: %s", err)
+		}
+		rp, ok := v.(resource.ResourceProvider)
 		if !ok {
-			// ?!
-			return
+			return nil, errors.New("graph vertex was not a resource provider")
 		}
 		var b resourceBundle
-		b.provider = rr
+		b.provider = rp
 		b.resources = append(b.resources, cr.resources[rid]...)
-
 		results = append(results, b)
-	}))
+	}
 
 	return results, nil
-}
-
-type visitorFunc func(dag.Vertexer)
-
-// Visit implements dag.Visitor.
-func (v visitorFunc) Visit(vx dag.Vertexer) {
-	v(vx)
 }
 
 func isResourceOkayToDelete(c *cfg, r resource.Resource) bool {
@@ -328,4 +325,75 @@ func (rb *resourceBag) addResource(ctx context.Context, s *config.Settings, r re
 		foundDeps.copy(d)
 	}
 	return foundDeps, nil
+}
+
+// dagDependencyOrder is similar to the BFS in the DAG package,
+// except a descendent-vertex never appears in the output before
+// any of its ancestors.
+func dagDependencyOrder(d *dag.DAG) ([]string, error) {
+	var toVisit queue
+	seen := map[string]bool{}
+	for id := range maps.Keys(d.GetRoots()) {
+		toVisit.enqueue(id)
+		seen[id] = true
+	}
+
+	var results []string
+
+	for !toVisit.empty() {
+		vertexID, _ := toVisit.dequeue()
+		results = append(results, vertexID)
+
+		// find descendants
+		descendants, err := d.GetOrderedDescendants(vertexID)
+		if err != nil {
+			return nil, fmt.Errorf("looking up vertex descendants: %s", err)
+		}
+
+	descendantLoop:
+		for _, did := range descendants {
+			// have we seen every ancestor of the candidate descendent?
+			ancestors, err := d.GetOrderedAncestors(did)
+			if err != nil {
+				return nil, fmt.Errorf("getting ancestors: %s", err)
+			}
+			for _, aid := range ancestors {
+				if !seen[aid] {
+					continue descendantLoop
+				}
+			}
+			// have we previously enqueued this vertex?
+			if seen[did] {
+				continue
+			}
+			toVisit.enqueue(did)
+			seen[did] = true
+		}
+	}
+
+	return results, nil
+}
+
+// this is not a great FIFO queue for a large
+// number of items, as the slice is continuously
+// "creeping" to the right.
+type queue struct {
+	items []string
+}
+
+func (q *queue) enqueue(id string) {
+	q.items = append(q.items, id)
+}
+
+func (q *queue) dequeue() (string, bool) {
+	if len(q.items) == 0 {
+		return "", false
+	}
+	id := q.items[0]
+	q.items = q.items[1:]
+	return id, true
+}
+
+func (q *queue) empty() bool {
+	return len(q.items) == 0
 }
