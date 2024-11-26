@@ -65,6 +65,8 @@ func mainErr() error {
 	s.Partition = parsedARN.Partition
 	s.Region = c.region
 	s.Account = *ident.Account
+	s.Filter.TagKey = c.tagKey
+	s.Filter.TagValue = c.tagValue
 
 	rs, err := getOrderedResources(ctx, c, &s)
 	if err != nil {
@@ -116,7 +118,7 @@ func getOrderedResources(ctx context.Context, c *cfg, s *config.Settings) ([]res
 
 	// implied dependencies
 	for fromType, v := range cr.impliedDeps {
-		for toType, _ := range v {
+		for toType := range v {
 			err := d.AddEdge(toType, fromType)
 			if err != nil {
 				return nil, fmt.Errorf("adding dependency from %s to %s: %s", fromType, toType, err)

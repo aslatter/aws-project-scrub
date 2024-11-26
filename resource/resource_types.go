@@ -5,6 +5,7 @@ const (
 	ResourceTypeEC2EIP                  = "AWS::EC2::EIP"
 	ResourceTypeEC2Instance             = "AWS::EC2::Instance"
 	ResourceTypeEC2NATGateway           = "AWS::EC2::NatGateway"
+	ResourceTypeEC2Volume               = "AWS::EC2::Volume"
 	ResourceTypeEC2VPC                  = "AWS::EC2::VPC"
 	ResourceTypeLoadBalancer            = "AWS::ElasticLoadBalancingV2::LoadBalancer"
 	ResourceTypeLoadBalancerTargetGroup = "AWS::ElasticLoadBalancingV2::TargetGroup"

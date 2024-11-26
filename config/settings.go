@@ -7,4 +7,8 @@ type Settings struct {
 	Region    string
 	Partition string
 	Account   string
+	Filter    struct {
+		TagKey   string
+		TagValue string
+	}
 }

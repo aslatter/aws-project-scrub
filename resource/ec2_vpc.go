@@ -116,7 +116,6 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *config.Settings, r R
 		}
 	}
 
-	// TODO - EIPs
 	// TODO - Volumes
 
 	return results, nil
@@ -129,6 +128,8 @@ func (e *ec2Vpc) Dependencies() []string {
 	// In theory we could discover all EKS clusters which have been configured to
 	// have their control-plane on the VPC we are deleting, and not have separate
 	// discovery of EKS stuff? (i.e. add a VPC loop to the above method).
+	//
+	// Any other "compute platforms" hosted on VPC would also go here.
 	return []string{ResourceTypeEKSCluster}
 }
 
@@ -138,8 +139,14 @@ func (e *ec2Vpc) FindResources(ctx context.Context, s *config.Settings) ([]Resou
 
 	c := ec2.NewFromConfig(s.AwsConfig)
 
-	// ideally we would filter by tags, but that's not wired into this spot yet
-	p := ec2.NewDescribeVpcsPaginator(c, &ec2.DescribeVpcsInput{})
+	p := ec2.NewDescribeVpcsPaginator(c, &ec2.DescribeVpcsInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("tag:" + s.Filter.TagKey),
+				Values: []string{s.Filter.TagValue},
+			},
+		},
+	})
 	for p.HasMorePages() {
 		vpcs, err := p.NextPage(ctx)
 		if err != nil {
