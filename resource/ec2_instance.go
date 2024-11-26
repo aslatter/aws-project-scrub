@@ -4,7 +4,6 @@ import (
 	"aws-project-scrub/config"
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 )
@@ -24,7 +23,7 @@ func (e *ec2Instance) DeleteResource(ctx context.Context, s *config.Settings, r 
 	w := ec2.NewInstanceTerminatedWaiter(c)
 	err = w.Wait(ctx, &ec2.DescribeInstancesInput{
 		InstanceIds: []string{r.ID[0]},
-	}, 5*time.Minute)
+	}, defaultDeleteWaitTime)
 	if err != nil {
 		return fmt.Errorf("waiting for instance termination: %s", err)
 	}

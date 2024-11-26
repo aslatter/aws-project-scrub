@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"maps"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 )
@@ -67,7 +66,7 @@ func (e *eksCluster) DeleteResource(ctx context.Context, s *config.Settings, r R
 	w := eks.NewClusterDeletedWaiter(c)
 	err = w.Wait(ctx, &eks.DescribeClusterInput{
 		Name: &r.ID[0],
-	}, 5*time.Minute)
+	}, defaultDeleteWaitTime)
 	if err != nil {
 		return fmt.Errorf("waiting for deletion: %s", err)
 	}

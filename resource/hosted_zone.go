@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"aws-project-scrub/config"
 
@@ -70,7 +69,7 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 
 				err = w.Wait(ctx, &route53.GetChangeInput{
 					Id: changeResult.ChangeInfo.Id,
-				}, 5*time.Minute)
+				}, defaultDeleteWaitTime)
 				if err != nil {
 					return fmt.Errorf("waiting for changeset: %s", err)
 				}
@@ -90,7 +89,7 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 
 		err = w.Wait(ctx, &route53.GetChangeInput{
 			Id: changeResult.ChangeInfo.Id,
-		}, 5*time.Minute)
+		}, defaultDeleteWaitTime)
 		if err != nil {
 			return fmt.Errorf("waiting for changeset: %s", err)
 		}

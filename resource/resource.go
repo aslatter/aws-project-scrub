@@ -5,6 +5,7 @@ import (
 	"maps"
 	"slices"
 	"strings"
+	"time"
 
 	"aws-project-scrub/config"
 )
@@ -59,3 +60,5 @@ type Resource struct {
 func (r Resource) String() string {
 	return r.Type + "/" + strings.Join(r.ID, "/")
 }
+
+const defaultDeleteWaitTime = 5 * time.Minute

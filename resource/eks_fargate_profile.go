@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 )
@@ -34,7 +33,7 @@ func (e *eksFargateProfile) DeleteResource(ctx context.Context, s *config.Settin
 	err = w.Wait(ctx, &eks.DescribeFargateProfileInput{
 		ClusterName:        &cluster,
 		FargateProfileName: &profile,
-	}, 5*time.Minute)
+	}, defaultDeleteWaitTime)
 	if err != nil {
 		return fmt.Errorf("waiting for deletion: %s", err)
 	}

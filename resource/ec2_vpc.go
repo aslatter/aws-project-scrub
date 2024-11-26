@@ -116,7 +116,7 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *config.Settings, r R
 		}
 	}
 
-	// TODO - Volumes
+	// TODO - launch templates?
 
 	return results, nil
 }
