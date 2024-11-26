@@ -201,9 +201,11 @@ func collectResources(ctx context.Context, c *cfg, s *config.Settings) (*collect
 	// resource-roots
 
 	b.providers = map[string]resource.ResourceProvider{}
-	for _, rp := range resource.GetAllResourceProviders(s) {
+	rps := resource.GetAllResourceProviders(s)
+	for _, rp := range rps {
 		b.providers[rp.Type()] = rp
-
+	}
+	for _, rp := range rps {
 		rootProvider, ok := rp.(resource.HasRootResources)
 		if !ok {
 			continue
