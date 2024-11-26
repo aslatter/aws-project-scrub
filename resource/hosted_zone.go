@@ -14,8 +14,8 @@ import (
 
 type hostedZone struct{}
 
-// RelatedResources implements ResourceProvider.
-func (h *hostedZone) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+// DependentResources implements ResourceProvider.
+func (h *hostedZone) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
 	return nil, nil
 }
 

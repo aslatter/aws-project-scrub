@@ -12,8 +12,8 @@ import (
 
 type eksCluster struct{}
 
-// RelatedResources implements ResourceProvider.
-func (e *eksCluster) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+// DependentResources implements ResourceProvider.
+func (e *eksCluster) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
 	c := eks.NewFromConfig(s.AwsConfig)
 	cluster := r.ID[0]
 
@@ -119,7 +119,7 @@ func (e *eksCluster) IsGlobal() bool {
 
 // Type implements ResourceProvider.
 func (e *eksCluster) Type() string {
-	return "AWS::EKS::Cluster"
+	return ResourceTypeEKSCluster
 }
 
 func init() {

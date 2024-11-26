@@ -10,8 +10,8 @@ import (
 
 type iamRole struct{}
 
-// RelatedResources implements ResourceProvider.
-func (i *iamRole) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+// DependentResources implements ResourceProvider.
+func (i *iamRole) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
 	c := iam.NewFromConfig(s.AwsConfig)
 
 	// instance profiles

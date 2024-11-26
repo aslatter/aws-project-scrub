@@ -12,8 +12,8 @@ import (
 
 type iamInstanceProfile struct{}
 
-// RelatedResources implements ResourceProvider.
-func (i *iamInstanceProfile) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+// DependentResources implements ResourceProvider.
+func (i *iamInstanceProfile) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
 	return nil, nil
 }
 

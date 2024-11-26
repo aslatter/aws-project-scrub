@@ -11,8 +11,8 @@ import (
 
 type iamOIDCProvider struct{}
 
-// RelatedResources implements ResourceProvider.
-func (i *iamOIDCProvider) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+// DependentResources implements ResourceProvider.
+func (i *iamOIDCProvider) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
 	return nil, nil
 }
 

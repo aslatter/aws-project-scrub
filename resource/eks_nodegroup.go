@@ -52,8 +52,8 @@ func (e *eksNodegroup) IsGlobal() bool {
 	return false
 }
 
-// RelatedResources implements ResourceProvider.
-func (e *eksNodegroup) RelatedResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+// DependentResources implements ResourceProvider.
+func (e *eksNodegroup) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
 	return nil, nil
 }
 

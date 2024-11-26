@@ -124,6 +124,18 @@ func getOrderedResources(ctx context.Context, c *cfg, s *config.Settings) ([]res
 		}
 	}
 
+	// explicit dependencies
+	for _, r := range rs {
+		if rd, ok := r.(resource.HasDependencies); ok {
+			for _, dep := range rd.Dependencies() {
+				err := d.AddEdge(dep, r.Type())
+				if err != nil {
+					return nil, fmt.Errorf("adding explicit dependency from %s to %s: %s", r.Type(), dep, err)
+				}
+			}
+		}
+	}
+
 	var results []resourceBundle
 
 	d.BFSWalk(visitorFunc(func(v dag.Vertexer) {
@@ -279,7 +291,7 @@ func (rb *resourceBag) addResource(ctx context.Context, s *config.Settings, r re
 	if !ok {
 		return nil, fmt.Errorf("unknown resource type %q", r.Type)
 	}
-	related, err := rp.RelatedResources(ctx, s, r)
+	related, err := rp.DependentResources(ctx, s, r)
 	if err != nil {
 		return nil, fmt.Errorf("finding resources related to %s", r)
 	}
