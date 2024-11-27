@@ -111,6 +111,14 @@ func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Reso
 	return err
 }
 
+func (*iamRole) Dependencies() []string {
+	// wait until we're done using roles.
+	// Note! For most cleanups, deleting roles will be a
+	// separate invocation of this tool, so this won't
+	// actually protect us.
+	return []string{ResourceTypeEC2VPC}
+}
+
 // FindResources implements Resource.
 func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
 	var foundRoles []Resource

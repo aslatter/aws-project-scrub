@@ -10,6 +10,7 @@ const (
 	ResourceTypeEC2Subnet                    = "AWS::EC2::Subnet"
 	ResourceTypeEC2SecurityGroup             = "AWS::EC2::SecurityGroup"
 	ResourceTypeEC2SecurityGroupRule         = "AWS::EC2::SecurityGroupRule" // not a real cfn type
+	ResourceTypeEC2LaunchTemplate            = "AWS::EC2::LaunchTemplate"
 	ResourceTypeEC2NetworkACL                = "AWS::EC2::NetworkAcl"
 	ResourceTypeEC2RouteTable                = "AWS::EC2::RouteTable"
 	ResourceTypeEC2InternetGateway           = "AWS::EC2::InternetGateway"
@@ -20,6 +21,10 @@ const (
 	ResourceTypeEKSCluster                   = "AWS::EKS::Cluster"
 	ResourceTypeEKSFargateProfile            = "AWS::EKS::FargateProfile"
 	ResourceTypeEKSNodegroup                 = "AWS::EKS::Nodegroup"
+	ResourceTypeEKSPodIdentityAssociation    = "AWS::EKS::PodIdentityAssociation"
+	ResourceTypeEventsRule                   = "AWS::Events::Rule"
+	ResourceTypeIAMPolicy                    = "AWS::IAM::Policy"
 	ResourceTypeIAMRole                      = "AWS::IAM::Role"
 	ResourceTypeIAMInstanceProfile           = "AWS::IAM::InstanceProfile"
+	ResourceTypeSQSQueue                     = "AWS::SQS::Queue"
 )

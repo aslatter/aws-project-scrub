@@ -50,6 +50,22 @@ func (e *eksCluster) DependentResources(ctx context.Context, s *config.Settings,
 		}
 	}
 
+	pip := eks.NewListPodIdentityAssociationsPaginator(c, &eks.ListPodIdentityAssociationsInput{
+		ClusterName: &cluster,
+	})
+	for pip.HasMorePages() {
+		pias, err := pip.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("listing pod-identity associations: %s", err)
+		}
+		for _, pia := range pias.Associations {
+			var r Resource
+			r.Type = ResourceTypeEKSPodIdentityAssociation
+			r.ID = []string{cluster, *pia.AssociationId}
+			result = append(result, r)
+		}
+	}
+
 	return result, nil
 }
 
