@@ -31,6 +31,12 @@ func (e *ec2Instance) DeleteResource(ctx context.Context, s *config.Settings, r 
 	return nil
 }
 
+func (*ec2Instance) Dependencies() []string {
+	// clean up EKS first, as it will fight against instance-deletion
+	// and create more instances.
+	return []string{ResourceTypeEKSCluster}
+}
+
 // Type implements ResourceProvider.
 func (e *ec2Instance) Type() string {
 	return ResourceTypeEC2Instance
