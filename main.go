@@ -309,7 +309,7 @@ func (rb *resourceBag) addResource(ctx context.Context, s *config.Settings, r re
 
 	related, err := dependencyProvider.DependentResources(ctx, s, r)
 	if err != nil {
-		return nil, fmt.Errorf("finding resources related to %s", r)
+		return nil, fmt.Errorf("finding resources related to %s: %s", r, err)
 	}
 
 	var foundDeps dependencies

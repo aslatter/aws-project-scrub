@@ -79,6 +79,169 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *config.Settings, r R
 		}
 	}
 
+	// subnets
+	sp := ec2.NewDescribeSubnetsPaginator(c, &ec2.DescribeSubnetsInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("vpc-id"),
+				Values: []string{vpcID},
+			},
+		},
+	})
+	for sp.HasMorePages() {
+		ss, err := sp.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("describing subnets: %s", err)
+		}
+		for _, s := range ss.Subnets {
+			if s.DefaultForAz != nil && *s.DefaultForAz {
+				continue
+			}
+			var r Resource
+			r.Type = ResourceTypeEC2Subnet
+			r.ID = []string{*s.SubnetId}
+			results = append(results, r)
+		}
+	}
+
+	// security groups
+	sgp := ec2.NewDescribeSecurityGroupsPaginator(c, &ec2.DescribeSecurityGroupsInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("vpc-id"),
+				Values: []string{vpcID},
+			},
+		},
+	})
+	for sgp.HasMorePages() {
+		sgs, err := sgp.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("describing security groups: %s", err)
+		}
+		for _, sg := range sgs.SecurityGroups {
+			if sg.GroupName != nil && *sg.GroupName == "default" {
+				continue
+			}
+			var r Resource
+			r.Type = ResourceTypeEC2SecurityGroup
+			r.ID = []string{*sg.GroupId}
+			results = append(results, r)
+		}
+	}
+
+	// ACLs
+	ap := ec2.NewDescribeNetworkAclsPaginator(c, &ec2.DescribeNetworkAclsInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("vpc-id"),
+				Values: []string{vpcID},
+			},
+		},
+	})
+	for ap.HasMorePages() {
+		as, err := ap.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("describing network ACLs: %s", err)
+		}
+		for _, acl := range as.NetworkAcls {
+			if acl.IsDefault != nil && *acl.IsDefault {
+				continue
+			}
+			var r Resource
+			r.Type = ResourceTypeEC2NetworkACL
+			r.ID = []string{*acl.NetworkAclId}
+			results = append(results, r)
+		}
+	}
+
+	// route tables
+	rtp := ec2.NewDescribeRouteTablesPaginator(c, &ec2.DescribeRouteTablesInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("vpc-id"),
+				Values: []string{vpcID},
+			},
+		},
+	})
+	for rtp.HasMorePages() {
+		rts, err := rtp.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("describing route tables: %s", err)
+		}
+		for _, rt := range rts.RouteTables {
+			var r Resource
+			r.Type = ResourceTypeEC2RouteTable
+			r.ID = []string{*rt.RouteTableId}
+			results = append(results, r)
+		}
+	}
+
+	// internet gateways
+	igp := ec2.NewDescribeInternetGatewaysPaginator(c, &ec2.DescribeInternetGatewaysInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("attachment.vpc-id"),
+				Values: []string{vpcID},
+			},
+		},
+	})
+	for igp.HasMorePages() {
+		igs, err := igp.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("describing internet gateways: %s", err)
+		}
+		for _, ig := range igs.InternetGateways {
+			var r Resource
+			r.Type = ResourceTypeEC2InternetGateway
+			r.ID = []string{*ig.InternetGatewayId}
+			results = append(results, r)
+		}
+	}
+
+	// egress-only internet gateways
+	eigp := ec2.NewDescribeEgressOnlyInternetGatewaysPaginator(c, &ec2.DescribeEgressOnlyInternetGatewaysInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("vpc-id"),
+				Values: []string{vpcID},
+			},
+		},
+	})
+	for eigp.HasMorePages() {
+		eigs, err := eigp.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("describing egress-only internet gateways: %s", err)
+		}
+		for _, eig := range eigs.EgressOnlyInternetGateways {
+			var r Resource
+			r.Type = ResourceTypeEC2EgressOnlyInternetGateway
+			r.ID = []string{*eig.EgressOnlyInternetGatewayId}
+			results = append(results, r)
+		}
+	}
+
+	// VPC endpoints
+	vep := ec2.NewDescribeVpcEndpointsPaginator(c, &ec2.DescribeVpcEndpointsInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("vpc-id"),
+				Values: []string{vpcID},
+			},
+		},
+	})
+	for vep.HasMorePages() {
+		ves, err := vep.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("describing VPC endpoints: %s", err)
+		}
+		for _, ve := range ves.VpcEndpoints {
+			var r Resource
+			r.Type = ResourceTypeEC2VPCEndpoint
+			r.ID = []string{*ve.VpcEndpointId}
+			results = append(results, r)
+		}
+	}
+
 	// load balancers (NLB or ALB - Classic LBs are a different API)
 	elbClient := elb.NewFromConfig(s.AwsConfig)
 	lbp := elb.NewDescribeLoadBalancersPaginator(elbClient, &elb.DescribeLoadBalancersInput{})
