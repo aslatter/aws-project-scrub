@@ -174,14 +174,27 @@ func isResourceOkayToDelete(c *cfg, r resource.Resource) bool {
 
 Global regions:
 
-curl -L https://github.com/aws/aws-sdk-ruby/raw/refs/heads/version-3/gems/aws-partitions/partitions.json | \
-	jq -r '.partitions | map (.services.iam.endpoints | select(. != null)) | map(to_entries[0].value.credentialScope.region) | .[]'
+curl -L "https://raw.githubusercontent.com/boto/botocore/1ad32855c799456250b44c2762cacd67f5647a6e/botocore/data/partitions.json" | \
+	jq -r '.partitions[].outputs.implicitGlobalRegion' | \
+	xargs -n 1 printf "\tcase \"%s\":\n\t\treturn true\n"
 
 **/
 
 func isGlobalRegion(region string) bool {
 	switch region {
-	case "us-east-1", "cn-north-1", "us-gov-west-1", "us-iso-east-1", "us-isob-east-1":
+	case "us-east-1":
+		return true
+	case "cn-northwest-1":
+		return true
+	case "us-gov-west-1":
+		return true
+	case "us-iso-east-1":
+		return true
+	case "us-isob-east-1":
+		return true
+	case "eu-isoe-west-1":
+		return true
+	case "us-isof-south-1":
 		return true
 	}
 	return false
