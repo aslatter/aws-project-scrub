@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"aws-project-scrub/config"
+	"github.com/aslatter/aws-project-scrub/internal/config"
 )
 
 type ResourceProvider interface {

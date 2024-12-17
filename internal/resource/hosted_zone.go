@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"aws-project-scrub/config"
+	"github.com/aslatter/aws-project-scrub/internal/config"
 
 	"github.com/aws/aws-sdk-go-v2/service/route53"
 	"github.com/aws/aws-sdk-go-v2/service/route53/types"

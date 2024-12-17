@@ -1,4 +1,4 @@
-module aws-project-scrub
+module github.com/aslatter/aws-project-scrub
 
 go 1.23.3
 

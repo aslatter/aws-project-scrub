@@ -5,8 +5,9 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 
-	"aws-project-scrub/config"
 	"context"
+
+	"github.com/aslatter/aws-project-scrub/internal/config"
 )
 
 type iamOIDCProvider struct{}

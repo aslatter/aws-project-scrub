@@ -1,8 +1,9 @@
 package resource
 
 import (
-	"aws-project-scrub/config"
 	"context"
+
+	"github.com/aslatter/aws-project-scrub/internal/config"
 
 	elb "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 )

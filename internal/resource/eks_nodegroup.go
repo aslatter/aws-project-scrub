@@ -1,11 +1,12 @@
 package resource
 
 import (
-	"aws-project-scrub/config"
 	"context"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/aslatter/aws-project-scrub/internal/config"
 
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 )

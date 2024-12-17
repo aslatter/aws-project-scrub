@@ -1,8 +1,6 @@
 package main
 
 import (
-	"aws-project-scrub/config"
-	"aws-project-scrub/resource"
 	"context"
 	"errors"
 	"fmt"
@@ -11,6 +9,9 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+
+	"github.com/aslatter/aws-project-scrub/internal/config"
+	"github.com/aslatter/aws-project-scrub/internal/resource"
 
 	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
