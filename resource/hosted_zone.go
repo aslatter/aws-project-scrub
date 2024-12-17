@@ -32,7 +32,7 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 	for rp.HasMorePages() {
 		result, err := rp.NextPage(ctx)
 		if err != nil {
-			return fmt.Errorf("listing record-sets: %s", err)
+			return fmt.Errorf("listing record-sets: %w", err)
 		}
 
 		for _, rr := range result.ResourceRecordSets {

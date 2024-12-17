@@ -20,7 +20,7 @@ func (i *internetGateway) DeleteResource(ctx context.Context, s *config.Settings
 		InternetGatewayIds: []string{r.ID[0]},
 	})
 	if err != nil {
-		return fmt.Errorf("describing internet gateway: %s", err)
+		return fmt.Errorf("describing internet gateway: %w", err)
 	}
 	if len(gws.InternetGateways) != 1 {
 		return fmt.Errorf("unexpected count of internet gateways: %d", len(gws.InternetGateways))

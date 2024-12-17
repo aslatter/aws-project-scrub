@@ -19,7 +19,7 @@ func (e *eventsRule) DeleteResource(ctx context.Context, s *config.Settings, r R
 		Rule: &r.ID[0],
 	})
 	if err != nil {
-		return fmt.Errorf("listing targets: %s", err)
+		return fmt.Errorf("listing targets: %w", err)
 	}
 	for _, target := range ts.Targets {
 		_, err := c.RemoveTargets(ctx, &eventbridge.RemoveTargetsInput{

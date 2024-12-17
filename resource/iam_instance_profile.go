@@ -25,9 +25,8 @@ func (i *iamInstanceProfile) DeleteResource(ctx context.Context, s *config.Setti
 	p, err := c.GetInstanceProfile(ctx, &iam.GetInstanceProfileInput{
 		InstanceProfileName: &r.ID[0],
 	})
-	// TODO - allow not-found?
 	if err != nil {
-		return fmt.Errorf("getting instance profile: %s", err)
+		return fmt.Errorf("getting instance profile: %w", err)
 	}
 
 	for _, role := range p.InstanceProfile.Roles {

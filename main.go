@@ -84,10 +84,13 @@ func mainErr() error {
 				if err != nil {
 					log.Printf("error: %q: %s", res, err)
 
-					// stop everything if the user canceled
-					if ctx.Err() != nil {
-						return ctx.Err()
+					// keep going for not-found errors
+					if resource.IsErrNotFound(err) {
+						continue
 					}
+
+					// otherwise stop
+					return err
 				}
 			}
 
