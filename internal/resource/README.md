@@ -9,10 +9,10 @@ New resources may be added by:
 
   ```go
   func init() {
-	register(func(s *config.Settings) ResourceProvider {
-		return &provider{}
-	})
-}
+    register(func(s *config.Settings) ResourceProvider {
+      return &provider{}
+    })
+  }
   ```
 
   To the new file. Implement the required methods.
