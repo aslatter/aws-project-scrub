@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
@@ -15,7 +13,7 @@ import (
 type ec2Vpc struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *ec2Vpc) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *ec2Vpc) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 
 	_, err := c.DeleteVpc(ctx, &ec2.DeleteVpcInput{
@@ -26,7 +24,7 @@ func (e *ec2Vpc) DeleteResource(ctx context.Context, s *config.Settings, r Resou
 }
 
 // DependentResources implements ResourceProvider.
-func (e *ec2Vpc) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+func (e *ec2Vpc) DependentResources(ctx context.Context, s *Settings, r Resource) ([]Resource, error) {
 	// https://docs.aws.amazon.com/vpc/latest/userguide/delete-vpc.html
 
 	vpcID := r.ID[0]
@@ -296,7 +294,7 @@ func (e *ec2Vpc) Dependencies() []string {
 }
 
 // FindResources implements ResourceProvider.
-func (e *ec2Vpc) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (e *ec2Vpc) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var results []Resource
 
 	c := ec2.NewFromConfig(s.AwsConfig)
@@ -340,7 +338,7 @@ func (e *ec2Vpc) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &ec2Vpc{}
 	})
 }

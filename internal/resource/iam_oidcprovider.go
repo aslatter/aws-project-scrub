@@ -6,8 +6,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 
 	"context"
-
-	"github.com/aslatter/aws-project-scrub/internal/config"
 )
 
 type iamOIDCProvider struct{}
@@ -18,7 +16,7 @@ func (i *iamOIDCProvider) IsGlobal() bool {
 }
 
 // DeleteResource implements ResourceProvider.
-func (i *iamOIDCProvider) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (i *iamOIDCProvider) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := iam.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteOpenIDConnectProvider(ctx, &iam.DeleteOpenIDConnectProviderInput{
 		OpenIDConnectProviderArn: &r.ID[0],
@@ -31,7 +29,7 @@ func (i *iamOIDCProvider) Type() string {
 	return "AWS::IAM::OIDCProvider"
 }
 
-func (i *iamOIDCProvider) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (i *iamOIDCProvider) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	c := iam.NewFromConfig(s.AwsConfig)
 	var found []Resource
 
@@ -74,7 +72,7 @@ func (i *iamOIDCProvider) FindResources(ctx context.Context, s *config.Settings)
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &iamOIDCProvider{}
 	})
 }

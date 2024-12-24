@@ -3,8 +3,6 @@ package resource
 import (
 	"context"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	elb "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 )
 
@@ -15,7 +13,7 @@ func (e *elbTargetGroup) Dependencies() []string {
 }
 
 // DeleteResource implements ResourceProvider.
-func (e *elbTargetGroup) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *elbTargetGroup) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := elb.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteTargetGroup(ctx, &elb.DeleteTargetGroupInput{
 		TargetGroupArn: &r.ID[0],
@@ -29,7 +27,7 @@ func (e *elbTargetGroup) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &elbTargetGroup{}
 	})
 }

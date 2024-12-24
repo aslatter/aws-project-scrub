@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 )
 
 type securityGroupRule struct{}
 
 // DeleteResource implements ResourceProvider.
-func (*securityGroupRule) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (*securityGroupRule) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 
 	groupID := r.ID[0]
@@ -43,7 +41,7 @@ func (s *securityGroupRule) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &securityGroupRule{}
 	})
 }

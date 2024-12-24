@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 )
 
 type eksFargateProfile struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *eksFargateProfile) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *eksFargateProfile) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	if len(r.ID) != 2 {
 		return fmt.Errorf("invalid id: %q", strings.Join(r.ID, "/"))
 	}
@@ -48,7 +46,7 @@ func (e *eksFargateProfile) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &eksFargateProfile{}
 	})
 }

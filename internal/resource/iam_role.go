@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 )
 
 type iamRole struct{}
 
 // DependentResources implements ResourceProvider.
-func (i *iamRole) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+func (i *iamRole) DependentResources(ctx context.Context, s *Settings, r Resource) ([]Resource, error) {
 	c := iam.NewFromConfig(s.AwsConfig)
 
 	// instance profiles
@@ -50,7 +48,7 @@ func (i *iamRole) Type() string {
 }
 
 // DeleteResource implements Resource.
-func (i *iamRole) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (i *iamRole) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	/**
 	Need to delete first:
 		- Inline policies (DeleteRolePolicy )
@@ -121,7 +119,7 @@ func (*iamRole) Dependencies() []string {
 }
 
 // FindResources implements Resource.
-func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (i *iamRole) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var foundRoles []Resource
 	c := iam.NewFromConfig(s.AwsConfig)
 
@@ -165,7 +163,7 @@ func (i *iamRole) FindResources(ctx context.Context, s *config.Settings) ([]Reso
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &iamRole{}
 	})
 }

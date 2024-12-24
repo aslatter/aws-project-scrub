@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
@@ -14,7 +12,7 @@ import (
 type securityGroup struct{}
 
 // DeleteResource implements ResourceProvider.
-func (*securityGroup) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (*securityGroup) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 
 	// TODO - drop VPC associations
@@ -27,7 +25,7 @@ func (*securityGroup) DeleteResource(ctx context.Context, s *config.Settings, r 
 	return err
 }
 
-func (*securityGroup) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+func (*securityGroup) DependentResources(ctx context.Context, s *Settings, r Resource) ([]Resource, error) {
 	groupID := r.ID[0]
 	var results []Resource
 
@@ -80,7 +78,7 @@ func (s *securityGroup) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &securityGroup{}
 	})
 }

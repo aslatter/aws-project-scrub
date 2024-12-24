@@ -3,15 +3,13 @@ package resource
 import (
 	"context"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 )
 
 type ec2Subnet struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *ec2Subnet) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *ec2Subnet) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteSubnet(ctx, &ec2.DeleteSubnetInput{
 		SubnetId: &r.ID[0],
@@ -36,7 +34,7 @@ func (e *ec2Subnet) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &ec2Subnet{}
 	})
 }

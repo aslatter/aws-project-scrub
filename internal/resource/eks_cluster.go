@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"maps"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 )
 
 type eksCluster struct{}
 
 // DependentResources implements ResourceProvider.
-func (e *eksCluster) DependentResources(ctx context.Context, s *config.Settings, r Resource) ([]Resource, error) {
+func (e *eksCluster) DependentResources(ctx context.Context, s *Settings, r Resource) ([]Resource, error) {
 	c := eks.NewFromConfig(s.AwsConfig)
 	cluster := r.ID[0]
 
@@ -71,7 +69,7 @@ func (e *eksCluster) DependentResources(ctx context.Context, s *config.Settings,
 }
 
 // DeleteResource implements ResourceProvider.
-func (e *eksCluster) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *eksCluster) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := eks.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteCluster(ctx, &eks.DeleteClusterInput{
 		Name: &r.ID[0],
@@ -92,7 +90,7 @@ func (e *eksCluster) DeleteResource(ctx context.Context, s *config.Settings, r R
 }
 
 // FindResources implements ResourceProvider.
-func (e *eksCluster) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (e *eksCluster) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var results []Resource
 
 	c := eks.NewFromConfig(s.AwsConfig)
@@ -134,7 +132,7 @@ func (e *eksCluster) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &eksCluster{}
 	})
 }

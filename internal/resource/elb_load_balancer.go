@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	elb "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 )
 
 type elbLoadBalancer struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *elbLoadBalancer) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *elbLoadBalancer) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := elb.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteLoadBalancer(ctx, &elb.DeleteLoadBalancerInput{
 		LoadBalancerArn: &r.ID[0],
@@ -38,7 +36,7 @@ func (e *elbLoadBalancer) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &elbLoadBalancer{}
 	})
 }

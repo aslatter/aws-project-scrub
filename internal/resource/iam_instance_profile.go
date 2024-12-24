@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 )
@@ -19,7 +17,7 @@ func (i *iamInstanceProfile) IsGlobal() bool {
 }
 
 // DeleteResource implements ResourceProvider.
-func (i *iamInstanceProfile) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (i *iamInstanceProfile) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := iam.NewFromConfig(s.AwsConfig)
 
 	// removes roles before deletion
@@ -66,7 +64,7 @@ func (i *iamInstanceProfile) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &iamInstanceProfile{}
 	})
 }

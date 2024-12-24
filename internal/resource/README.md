@@ -9,7 +9,7 @@ New resources may be added by:
 
   ```go
   func init() {
-    register(func(s *config.Settings) ResourceProvider {
+    register(func(s *Settings) ResourceProvider {
       return &provider{}
     })
   }
@@ -25,7 +25,7 @@ There are two kinds of resources:
 * Dependent resources
 
 Root-resources are supported by a resource-provider if the provider
-has a method `FindResources(context.Context, *config.Settings) ([]Resource, error)`.
+has a method `FindResources(context.Context, *Settings) ([]Resource, error)`.
 The returned resources must include any tags, and returned resources
 will only be deleted if they match tag-filters passed in to the program.
 
@@ -34,7 +34,7 @@ is available in the passed-in settings. This can be used if the API used to
 search for resources supports natively filtering by tags.
 
 Dependent resources are supported by a provider if the provider has a
-method `DependentResources(context.Context, *config.Settings, Resource) ([]Resource, error)`.
+method `DependentResources(context.Context, *Settings, Resource) ([]Resource, error)`.
 
 Dependent resources are resources which must be deleted prior to the
 passed-in resource itself being delete.

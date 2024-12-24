@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
@@ -14,7 +12,7 @@ import (
 type ec2Volume struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *ec2Volume) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *ec2Volume) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteVolume(ctx, &ec2.DeleteVolumeInput{
 		VolumeId: &r.ID[0],
@@ -28,7 +26,7 @@ func (e *ec2Volume) Dependencies() []string {
 }
 
 // FindResources implements ResourceProvider.
-func (e *ec2Volume) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (e *ec2Volume) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var result []Resource
 
 	c := ec2.NewFromConfig(s.AwsConfig)
@@ -71,7 +69,7 @@ func (e *ec2Volume) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &ec2Volume{}
 	})
 }

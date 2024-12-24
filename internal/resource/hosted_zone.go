@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/route53"
 	"github.com/aws/aws-sdk-go-v2/service/route53/types"
 )
@@ -14,7 +12,7 @@ import (
 type hostedZone struct{}
 
 // DeleteResource implements ResourceProvider.
-func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (h *hostedZone) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 
 	zid := r.ID[0]
 	zname := r.ID[1]
@@ -102,7 +100,7 @@ func (h *hostedZone) DeleteResource(ctx context.Context, s *config.Settings, r R
 }
 
 // FindResources implements ResourceProvider.
-func (h *hostedZone) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (h *hostedZone) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	c := route53.NewFromConfig(s.AwsConfig)
 
 	var foundZones []Resource
@@ -158,7 +156,7 @@ func (h *hostedZone) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &hostedZone{}
 	})
 }

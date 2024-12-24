@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"maps"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 )
 
 type sqsQueue struct{}
 
 // DeleteResource implements ResourceProvider.
-func (*sqsQueue) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (*sqsQueue) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := sqs.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteQueue(ctx, &sqs.DeleteQueueInput{
 		QueueUrl: &r.ID[0],
@@ -21,7 +19,7 @@ func (*sqsQueue) DeleteResource(ctx context.Context, s *config.Settings, r Resou
 	return err
 }
 
-func (*sqsQueue) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (*sqsQueue) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var result []Resource
 
 	c := sqs.NewFromConfig(s.AwsConfig)
@@ -57,7 +55,7 @@ func (s *sqsQueue) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &sqsQueue{}
 	})
 }

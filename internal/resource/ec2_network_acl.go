@@ -3,15 +3,13 @@ package resource
 import (
 	"context"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 )
 
 type networkACL struct{}
 
 // DeleteResource implements ResourceProvider.
-func (n *networkACL) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (n *networkACL) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteNetworkAcl(ctx, &ec2.DeleteNetworkAclInput{
 		NetworkAclId: &r.ID[0],
@@ -32,7 +30,7 @@ func (n *networkACL) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &networkACL{}
 	})
 }

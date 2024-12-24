@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
 )
 
 type eventsRule struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *eventsRule) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *eventsRule) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := eventbridge.NewFromConfig(s.AwsConfig)
 
 	// remove targets
@@ -39,7 +37,7 @@ func (e *eventsRule) DeleteResource(ctx context.Context, s *config.Settings, r R
 	return err
 }
 
-func (*eventsRule) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (*eventsRule) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var result []Resource
 
 	c := eventbridge.NewFromConfig(s.AwsConfig)
@@ -91,7 +89,7 @@ func (e *eventsRule) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &eventsRule{}
 	})
 }

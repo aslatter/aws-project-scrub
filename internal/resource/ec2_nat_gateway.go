@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 )
 
 type natGateway struct{}
 
 // DeleteResource implements ResourceProvider.
-func (n *natGateway) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (n *natGateway) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 
 	_, err := c.DeleteNatGateway(ctx, &ec2.DeleteNatGatewayInput{
@@ -39,7 +37,7 @@ func (n *natGateway) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &natGateway{}
 	})
 }

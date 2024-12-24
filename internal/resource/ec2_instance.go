@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 )
 
 type ec2Instance struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *ec2Instance) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *ec2Instance) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 	_, err := c.TerminateInstances(ctx, &ec2.TerminateInstancesInput{
 		InstanceIds: []string{r.ID[0]},
@@ -44,7 +42,7 @@ func (e *ec2Instance) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &ec2Instance{}
 	})
 }

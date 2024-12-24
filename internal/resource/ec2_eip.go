@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
@@ -14,7 +12,7 @@ import (
 type ec2EIP struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *ec2EIP) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *ec2EIP) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 	_, err := c.ReleaseAddress(ctx, &ec2.ReleaseAddressInput{
 		AllocationId: &r.ID[0],
@@ -30,7 +28,7 @@ func (e *ec2EIP) Dependencies() []string {
 }
 
 // FindResources implements ResourceProvider.
-func (e *ec2EIP) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (e *ec2EIP) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var result []Resource
 
 	c := ec2.NewFromConfig(s.AwsConfig)
@@ -71,7 +69,7 @@ func (e *ec2EIP) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &ec2EIP{}
 	})
 }

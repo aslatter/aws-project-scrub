@@ -3,15 +3,13 @@ package resource
 import (
 	"context"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 )
 
 type eksPodIdentityAssoc struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *eksPodIdentityAssoc) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *eksPodIdentityAssoc) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := eks.NewFromConfig(s.AwsConfig)
 	_, err := c.DeletePodIdentityAssociation(ctx, &eks.DeletePodIdentityAssociationInput{
 		ClusterName:   &r.ID[0],
@@ -26,7 +24,7 @@ func (e *eksPodIdentityAssoc) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &eksPodIdentityAssoc{}
 	})
 }

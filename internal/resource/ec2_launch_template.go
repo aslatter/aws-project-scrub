@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
@@ -14,7 +12,7 @@ import (
 type ec2LaunchTemplate struct{}
 
 // DeleteResource implements ResourceProvider.
-func (e *ec2LaunchTemplate) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (e *ec2LaunchTemplate) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := ec2.NewFromConfig(s.AwsConfig)
 	_, err := c.DeleteLaunchTemplate(ctx, &ec2.DeleteLaunchTemplateInput{
 		LaunchTemplateId: &r.ID[0],
@@ -22,7 +20,7 @@ func (e *ec2LaunchTemplate) DeleteResource(ctx context.Context, s *config.Settin
 	return err
 }
 
-func (*ec2LaunchTemplate) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (*ec2LaunchTemplate) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var result []Resource
 	c := ec2.NewFromConfig(s.AwsConfig)
 	p := ec2.NewDescribeLaunchTemplatesPaginator(c, &ec2.DescribeLaunchTemplatesInput{
@@ -63,7 +61,7 @@ func (e *ec2LaunchTemplate) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &ec2LaunchTemplate{}
 	})
 }

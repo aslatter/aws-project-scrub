@@ -10,7 +10,6 @@ import (
 	"os/signal"
 	"strings"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
 	"github.com/aslatter/aws-project-scrub/internal/resource"
 
 	"github.com/aws/aws-sdk-go-v2/aws/arn"
@@ -61,7 +60,7 @@ func mainErr() error {
 		return fmt.Errorf("parsing identity ARN: %s", err)
 	}
 
-	var s config.Settings
+	var s resource.Settings
 	s.AwsConfig = ac
 	s.Partition = parsedARN.Partition
 	s.Region = c.region
@@ -105,7 +104,7 @@ type resourceBundle struct {
 	resources []resource.Resource
 }
 
-func getOrderedResources(ctx context.Context, c *cfg, s *config.Settings) ([]resourceBundle, error) {
+func getOrderedResources(ctx context.Context, c *cfg, s *resource.Settings) ([]resourceBundle, error) {
 	cr, err := collectResources(ctx, c, s)
 	if err != nil {
 		return nil, err
@@ -204,7 +203,7 @@ func isGlobalRegion(region string) bool {
 	return false
 }
 
-func collectResources(ctx context.Context, c *cfg, s *config.Settings) (*collectedResources, error) {
+func collectResources(ctx context.Context, c *cfg, s *resource.Settings) (*collectedResources, error) {
 	var b resourceBag
 	var result collectedResources
 
@@ -296,7 +295,7 @@ func (d *dependencies) copy(other dependencies) {
 	}
 }
 
-func (rb *resourceBag) addResource(ctx context.Context, s *config.Settings, r resource.Resource) (dependencies, error) {
+func (rb *resourceBag) addResource(ctx context.Context, s *resource.Settings, r resource.Resource) (dependencies, error) {
 	if rb.foundResources == nil {
 		rb.foundResources = map[string]map[string]resource.Resource{}
 	}

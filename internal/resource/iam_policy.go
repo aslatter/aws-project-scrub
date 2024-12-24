@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aslatter/aws-project-scrub/internal/config"
-
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/iam/types"
 )
@@ -13,7 +11,7 @@ import (
 type iamPolicy struct{}
 
 // DeleteResource implements ResourceProvider.
-func (i *iamPolicy) DeleteResource(ctx context.Context, s *config.Settings, r Resource) error {
+func (i *iamPolicy) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := iam.NewFromConfig(s.AwsConfig)
 	_, err := c.DeletePolicy(ctx, &iam.DeletePolicyInput{
 		PolicyArn: &r.ID[0],
@@ -29,7 +27,7 @@ func (*iamPolicy) IsGlobal() bool {
 	return true
 }
 
-func (*iamPolicy) FindResources(ctx context.Context, s *config.Settings) ([]Resource, error) {
+func (*iamPolicy) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
 	var result []Resource
 
 	c := iam.NewFromConfig(s.AwsConfig)
@@ -75,7 +73,7 @@ func (i *iamPolicy) Type() string {
 }
 
 func init() {
-	register(func(s *config.Settings) ResourceProvider {
+	register(func(s *Settings) ResourceProvider {
 		return &iamPolicy{}
 	})
 }
