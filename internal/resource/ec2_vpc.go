@@ -135,6 +135,10 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *Settings, r Resource
 				Name:   aws.String("vpc-id"),
 				Values: []string{vpcID},
 			},
+			{
+				Name:   aws.String("default"),
+				Values: []string{"false"},
+			},
 		},
 	})
 	for ap.HasMorePages() {
@@ -143,9 +147,6 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *Settings, r Resource
 			return nil, fmt.Errorf("describing network ACLs: %s", err)
 		}
 		for _, acl := range as.NetworkAcls {
-			if acl.IsDefault != nil && *acl.IsDefault {
-				continue
-			}
 			var r Resource
 			r.Type = ResourceTypeEC2NetworkACL
 			r.ID = []string{*acl.NetworkAclId}
