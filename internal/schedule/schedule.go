@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"maps"
 	"slices"
 	"strings"
 	"sync"
 
 	"github.com/aslatter/aws-project-scrub/internal/resource"
+
 	"github.com/heimdalr/dag"
 	"golang.org/x/sync/semaphore"
 )
@@ -22,7 +22,6 @@ type Plan struct {
 	Settings  *resource.Settings
 	Filter    func(r resource.Resource) bool
 	Action    func(ctx context.Context, p resource.ResourceProvider, r resource.Resource) error
-	Logger    *slog.Logger
 
 	// hook that any child goroutine can use to wind things down
 	abort func(error)
@@ -36,16 +35,11 @@ type Plan struct {
 }
 
 func (p *Plan) Exec(ctx context.Context) error {
-	l := p.Logger
-	if l == nil {
-		l = slog.Default()
-	}
 	return (&Plan{
 		Providers: p.Providers,
 		Settings:  p.Settings,
 		Filter:    p.Filter,
 		Action:    p.Action,
-		Logger:    l,
 	}).exec(ctx)
 }
 
