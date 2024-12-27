@@ -14,6 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.37.1
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.1
 	github.com/heimdalr/dag v1.5.0
+	golang.org/x/sync v0.10.0
 	golang.org/x/sys v0.27.0
 )
 
