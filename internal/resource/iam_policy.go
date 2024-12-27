@@ -13,6 +13,29 @@ type iamPolicy struct{}
 // DeleteResource implements ResourceProvider.
 func (i *iamPolicy) DeleteResource(ctx context.Context, s *Settings, r Resource) error {
 	c := iam.NewFromConfig(s.AwsConfig)
+
+	pvp := iam.NewListPolicyVersionsPaginator(c, &iam.ListPolicyVersionsInput{
+		PolicyArn: &r.ID[0],
+	})
+	for pvp.HasMorePages() {
+		versions, err := pvp.NextPage(ctx)
+		if err != nil {
+			return fmt.Errorf("listing policy versions for %q: %s", r, err)
+		}
+		for _, version := range versions.Versions {
+			if version.IsDefaultVersion {
+				continue
+			}
+			_, err := c.DeletePolicyVersion(ctx, &iam.DeletePolicyVersionInput{
+				PolicyArn: &r.ID[0],
+				VersionId: version.VersionId,
+			})
+			if err != nil {
+				return fmt.Errorf("deleting policy version for %q: %s", r, err)
+			}
+		}
+	}
+
 	_, err := c.DeletePolicy(ctx, &iam.DeletePolicyInput{
 		PolicyArn: &r.ID[0],
 	})
