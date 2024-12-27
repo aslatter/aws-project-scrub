@@ -90,14 +90,14 @@ func mainErr() error {
 			log.Printf("deleting %s ...", r)
 			err := p.DeleteResource(ctx, &s, r)
 			if err != nil {
-				log.Printf("error: %q: %s", r, err)
-
 				// keep going for not-found errors
 				if resource.IsErrNotFound(err) {
+					log.Printf("warning: %q: %s", r, err)
 					return nil
 				}
 
 				// otherwise stop
+				log.Printf("error: %q: %s", r, err)
 				return err
 			}
 			return nil
