@@ -160,6 +160,10 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *Settings, r Resource
 				Name:   aws.String("vpc-id"),
 				Values: []string{vpcID},
 			},
+			{
+				Name:   aws.String("association.main"),
+				Values: []string{"false"},
+			},
 		},
 	})
 	for rtp.HasMorePages() {
