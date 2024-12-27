@@ -27,4 +27,5 @@ const (
 	ResourceTypeIAMRole                      = "AWS::IAM::Role"
 	ResourceTypeIAMInstanceProfile           = "AWS::IAM::InstanceProfile"
 	ResourceTypeSQSQueue                     = "AWS::SQS::Queue"
+	ResourceTypeLogsLogGroup                 = "AWS::Logs::LogGroup"
 )
