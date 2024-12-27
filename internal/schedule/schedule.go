@@ -66,8 +66,7 @@ func (p *Plan) exec(ctx context.Context) error {
 		}
 		for _, dep := range hasDeps.Dependencies() {
 			err := p.deps.AddEdge(dep, pr.Type())
-			var isEdgeErr dag.EdgeDuplicateError
-			if err != nil && !errors.As(err, &isEdgeErr) {
+			if err != nil && !isDuplicateEdgeError(err) {
 				return fmt.Errorf("adding dependency on %q from %q: %s", dep, pr.Type(), err)
 			}
 		}
@@ -167,41 +166,6 @@ func (p *Plan) exec(ctx context.Context) error {
 	return nil
 }
 
-// processOneProvider deletes all resources associated with a single
-// resource-provider. Once complete it will send it's provider-type
-// down the 'doneSignal' channel. Resources will be processed in
-// parallel.
-func (p *Plan) processOneProvider(ctx context.Context, typ string) {
-	defer func() {
-		p.doneSignal <- typ
-	}()
-
-	pr, ok := p.providers[typ]
-	if !ok {
-		p.abort(fmt.Errorf("processProvider: unknown type %q", typ))
-	}
-
-	var wg sync.WaitGroup
-	for r := range maps.Values(p.resources[typ]) {
-		err := p.availableWorkers.Acquire(ctx, 1)
-		if err != nil {
-			// context canceled
-			return
-		}
-		wg.Add(1)
-		go func() {
-			defer p.availableWorkers.Release(1)
-			defer wg.Done()
-
-			err := p.Action(ctx, pr, r)
-			if err != nil {
-				p.abort(err)
-			}
-		}()
-	}
-	wg.Wait()
-}
-
 // addOneResource adds a resource to the plan. If the resource has
 // dynamically-discovered dependencies, those are recursively added
 // as well.
@@ -238,12 +202,51 @@ func (p *Plan) addOneResource(ctx context.Context, r resource.Resource) error {
 			return fmt.Errorf("adding dependent resource %q: %s", nextResource, err)
 		}
 
-		var isEdgeErr dag.EdgeDuplicateError
 		err = p.deps.AddEdge(nextResource.Type, r.Type)
-		if err != nil && !errors.As(err, &isEdgeErr) {
+		if err != nil && !isDuplicateEdgeError(err) {
 			return fmt.Errorf("adding dependency on %q from %q: %s", nextResource.Type, r.Type, err)
 		}
 	}
 
 	return nil
+}
+
+func isDuplicateEdgeError(err error) bool {
+	var isEdgeErr dag.EdgeDuplicateError
+	return errors.As(err, &isEdgeErr)
+}
+
+// processOneProvider deletes all resources associated with a single
+// resource-provider. Once complete it will send it's provider-type
+// down the 'doneSignal' channel. Resources will be processed in
+// parallel.
+func (p *Plan) processOneProvider(ctx context.Context, typ string) {
+	defer func() {
+		p.doneSignal <- typ
+	}()
+
+	pr, ok := p.providers[typ]
+	if !ok {
+		p.abort(fmt.Errorf("processProvider: unknown type %q", typ))
+	}
+
+	var wg sync.WaitGroup
+	for r := range maps.Values(p.resources[typ]) {
+		err := p.availableWorkers.Acquire(ctx, 1)
+		if err != nil {
+			// context canceled
+			return
+		}
+		wg.Add(1)
+		go func() {
+			defer p.availableWorkers.Release(1)
+			defer wg.Done()
+
+			err := p.Action(ctx, pr, r)
+			if err != nil {
+				p.abort(err)
+			}
+		}()
+	}
+	wg.Wait()
 }
