@@ -113,6 +113,9 @@ func (p *Plan) exec(ctx context.Context) error {
 	p.abort = ctxDone
 	defer ctxDone(nil)
 
+	// allow deleting up to 20 resources concurrently. We
+	// may have less concurrency than this if dependencies
+	// are not met.
 	p.availableWorkers = semaphore.NewWeighted(20)
 
 	//
@@ -164,6 +167,10 @@ func (p *Plan) exec(ctx context.Context) error {
 	return nil
 }
 
+// processOneProvider deletes all resources associated with a single
+// resource-provider. Once complete it will send it's provider-type
+// down the 'doneSignal' channel. Resources will be processed in
+// parallel.
 func (p *Plan) processOneProvider(ctx context.Context, typ string) {
 	defer func() {
 		p.doneSignal <- typ
@@ -195,6 +202,9 @@ func (p *Plan) processOneProvider(ctx context.Context, typ string) {
 	wg.Wait()
 }
 
+// addOneResource adds a resource to the plan. If the resource has
+// dynamically-discovered dependencies, those are recursively added
+// as well.
 func (p *Plan) addOneResource(ctx context.Context, r resource.Resource) error {
 	pr, ok := p.providers[r.Type]
 	if !ok {
