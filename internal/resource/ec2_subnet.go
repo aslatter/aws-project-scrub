@@ -23,6 +23,7 @@ func (*ec2Subnet) Dependencies() []string {
 	return []string{
 		ResourceTypeEC2Instance,
 		ResourceTypeEKSCluster,
+		ResourceTypeEC2NATGateway,
 		ResourceTypeLoadBalancer,
 		ResourceTypeEC2VPCEndpoint,
 	}
