@@ -161,10 +161,6 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *Settings, r Resource
 				Name:   aws.String("vpc-id"),
 				Values: []string{vpcID},
 			},
-			{
-				Name:   aws.String("association.main"),
-				Values: []string{"false"},
-			},
 		},
 	})
 	for rtp.HasMorePages() {
@@ -173,6 +169,18 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *Settings, r Resource
 			return nil, fmt.Errorf("describing route tables: %s", err)
 		}
 		for _, rt := range rts.RouteTables {
+			// filter out main rtb
+			var isMain bool
+			for _, assoc := range rt.Associations {
+				if assoc.Main != nil && *assoc.Main {
+					isMain = true
+					break
+				}
+			}
+			if isMain {
+				continue
+			}
+
 			var r Resource
 			r.Type = ResourceTypeEC2RouteTable
 			r.ID = []string{*rt.RouteTableId}
