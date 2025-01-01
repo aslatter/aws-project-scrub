@@ -180,28 +180,6 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *Settings, r Resource
 		}
 	}
 
-	// internet gateways
-	igp := ec2.NewDescribeInternetGatewaysPaginator(c, &ec2.DescribeInternetGatewaysInput{
-		Filters: []types.Filter{
-			{
-				Name:   aws.String("attachment.vpc-id"),
-				Values: []string{vpcID},
-			},
-		},
-	})
-	for igp.HasMorePages() {
-		igs, err := igp.NextPage(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("describing internet gateways: %s", err)
-		}
-		for _, ig := range igs.InternetGateways {
-			var r Resource
-			r.Type = ResourceTypeEC2InternetGateway
-			r.ID = []string{*ig.InternetGatewayId}
-			results = append(results, r)
-		}
-	}
-
 	// egress-only internet gateways
 	eigp := ec2.NewDescribeEgressOnlyInternetGatewaysPaginator(c, &ec2.DescribeEgressOnlyInternetGatewaysInput{
 		Filters: []types.Filter{
@@ -295,7 +273,7 @@ func (e *ec2Vpc) Dependencies() []string {
 	// discovery of EKS stuff? (i.e. add a VPC loop to the above method).
 	//
 	// Any other "compute platforms" hosted on VPC would also go here.
-	return []string{ResourceTypeEKSCluster}
+	return []string{ResourceTypeEKSCluster, ResourceTypeEC2InternetGateway}
 }
 
 // FindResources implements ResourceProvider.

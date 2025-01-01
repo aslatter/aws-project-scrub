@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 type internetGateway struct{}
@@ -40,6 +42,43 @@ func (i *internetGateway) DeleteResource(ctx context.Context, s *Settings, r Res
 	})
 
 	return err
+}
+
+func (i *internetGateway) FindResources(ctx context.Context, s *Settings) ([]Resource, error) {
+	var result []Resource
+
+	c := ec2.NewFromConfig(s.AwsConfig)
+	igp := ec2.NewDescribeInternetGatewaysPaginator(c, &ec2.DescribeInternetGatewaysInput{
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("tag:" + s.Filter.TagKey),
+				Values: []string{s.Filter.TagValue},
+			},
+		},
+	})
+
+	for igp.HasMorePages() {
+		igs, err := igp.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("describing internet gateways: %s", err)
+		}
+		for _, ig := range igs.InternetGateways {
+			var r Resource
+			r.Type = i.Type()
+			r.ID = []string{*ig.InternetGatewayId}
+			r.Tags = map[string]string{}
+			result = append(result, r)
+
+			for _, t := range ig.Tags {
+				if t.Key == nil || t.Value == nil {
+					continue
+				}
+				r.Tags[*t.Key] = *t.Value
+			}
+		}
+	}
+
+	return result, nil
 }
 
 // wait for stuff which could be using IPv4 routes
