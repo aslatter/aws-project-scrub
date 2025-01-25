@@ -39,6 +39,10 @@ func (e *ec2Vpc) DependentResources(ctx context.Context, s *Settings, r Resource
 				Name:   aws.String("vpc-id"),
 				Values: []string{vpcID},
 			},
+			{
+				Name:   aws.String("operator.managed"),
+				Values: []string{"false"},
+			},
 		},
 	})
 	for ip.HasMorePages() {
