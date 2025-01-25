@@ -81,7 +81,7 @@ func (e *eksCluster) DeleteResource(ctx context.Context, s *Settings, r Resource
 	w := eks.NewClusterDeletedWaiter(c)
 	err = w.Wait(ctx, &eks.DescribeClusterInput{
 		Name: &r.ID[0],
-	}, defaultDeleteWaitTime)
+	}, 3*defaultDeleteWaitTime)
 	if err != nil {
 		return fmt.Errorf("waiting for deletion: %s", err)
 	}
